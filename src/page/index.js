@@ -4,8 +4,10 @@ import Tetris from "../page/display/index"
 import Control from "../page/control/index"
 import {connect} from 'react-redux';
 import dispatchAction from "util/dispatchAction"
+import {creatMap} from "../reducers/map"
 class App extends Component {
-    siteMap = []
+    siteMap = [];
+    isTransform = true ;
     redArr = [2,2,2,2,2,2,2,2,2,2]
     plainArr = [0,0,0,0,0,0,0,0,0,0]
     // 碰撞函数
@@ -13,10 +15,15 @@ class App extends Component {
         let {currentMap,controlNextAction,setAction} = this.props;
         
         currentMap.autoDown = false ;
+        if(this.isDied()){
+            this.stop()
+
+
+        }
         let arr = this.isComplete(map);
         if(arr){
             this.stop()
-            this.completeAniment(map,arr)
+            this.completeAnimate(map,arr)
             .then(()=>{
                 this.complete(map,arr)
             })
@@ -36,8 +43,29 @@ class App extends Component {
         }
         if(arr.length) return arr
     }
+    // 是否死亡
+    isDied = ()=>{
+        let {currentMap} = this.props;
+        let {index,seat,site} = currentMap;
+        let {info} = site[index];
+        let bottom = seat[1];
+        let {t=0,b=0,len} = info
+        return (len - t - b >= bottom)
+    }
+    // 死亡动画
+    diedAnimate = ()=>{
+        let time = 0;
+        let callback = ()=>{
+            if(this.startFlag){
+                requestAnimationFrame(callback)
+            }else {
+                callback = null;
+            }
+        }
+        requestAnimationFrame(callback)
+    }
     // 已完成动画
-    completeAniment = (map,arr)=>{
+    completeAnimate = (map,arr)=>{
         return new Promise((resolve)=>{
                 this.changeRed(map,arr)
                 setTimeout(()=>{
@@ -98,8 +126,11 @@ class App extends Component {
             if(l >= 0){
                 spliceArr = arr.splice(l,info.len)
                 spliceArr = spliceArr.map((val,k)=>{
-                    if(value[k] === 1 && val === 1){
-                        collide = true
+                    if( val === 1){
+                        this.isTransform = false
+                        if(value[k] === 1){
+                            collide = true
+                        }
                     }
                     return value[k] || val
                 })
@@ -109,8 +140,11 @@ class App extends Component {
                 let len = info.len - abs;
                 spliceArr = arr.splice(0,len);
                 let newspliceArr = spliceArr.map((val,k)=>{
-                    if(value[k+abs] === 1 && val === 1){
-                        collide = true
+                    if( val === 1){
+                        this.isTransform = false
+                        if(value[k+abs] === 1){
+                            collide = true
+                        }
                     }
                     return value[k+abs] || val
                 })
@@ -147,11 +181,13 @@ class App extends Component {
     }
     // 变换
     transform = ()=>{
+        if(!this.isTransform) return
         let {currentMap,controlChangeAction} = this.props;
         let {index,site,seat} = currentMap;
-        let [left] = seat;
+        let [left,bottom] = seat;
         let info = site[index].info;
         if(left < 0 || left + info.len > 10) return
+        if(bottom > 19 ) return
         if(index + 1 >= site.length){
             index = 0 
         }else {
@@ -205,15 +241,16 @@ class App extends Component {
                 seat:[seat[0],top+1]
             })
         }else {
-            console.log(this.siteMap)
             this.collideHandle(this.siteMap)
-            console.log("到底了")
         }
     }
     componentDidMount(){
         var {controlStartAction} =this.props
         controlStartAction()
-        this.start()
+        // this.start()
+    }
+    componentWillReceiveProps(next){
+        this.isTransform = true
     }
     render() {
         let {start,stop,translation,down,transform} = this;
@@ -222,7 +259,7 @@ class App extends Component {
         // transform: scale(0.988542);
         return (
         <div data-reactroot="" className="wrap" style={{transform: "scale(1)", paddingTop: "101px", paddingBottom: "59px", marginTop: "-569px"}}>
-            <Tetris map={newMap}/>
+            <Tetris currentMap={currentMap} map={newMap}/>
             <Control 
             down={down}
             stop={stop}
