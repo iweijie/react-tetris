@@ -4,21 +4,24 @@ import Tetris from "../page/display/index"
 import Control from "../page/control/index"
 import {connect} from 'react-redux';
 import dispatchAction from "util/dispatchAction"
-import {creatMap} from "../reducers/map"
 class App extends Component {
+    state = {
+        isMask:true
+    }
     siteMap = [];
     isTransform = true ;
     redArr = [2,2,2,2,2,2,2,2,2,2]
+    completeArr = [1,1,1,1,1,1,1,1,1,1]
     plainArr = [0,0,0,0,0,0,0,0,0,0]
     // 碰撞函数
     collideHandle = (map)=>{
         let {currentMap,controlNextAction,setAction} = this.props;
-        
+        this.speed = 100;
         currentMap.autoDown = false ;
         if(this.isDied()){
             this.stop()
-
-
+            this.diedAnimate()
+            return map
         }
         let arr = this.isComplete(map);
         if(arr){
@@ -54,15 +57,31 @@ class App extends Component {
     }
     // 死亡动画
     diedAnimate = ()=>{
-        let time = 0;
-        let callback = ()=>{
-            if(this.startFlag){
-                requestAnimationFrame(callback)
-            }else {
-                callback = null;
-            }
-        }
-        requestAnimationFrame(callback)
+        let {map,setAction} = this.props;
+        let i = 19;
+        let timerId,newmap = map;
+        return new Promise((resolve)=>{
+            timerId = setInterval(()=>{
+                newmap = [...newmap];
+                newmap[i] = this.completeArr
+                setAction(newmap)
+                i--;
+                if(i<0){
+                    clearInterval(timerId)
+                    i = 0;
+                    timerId = setInterval(()=>{
+                        newmap = [...newmap];
+                        newmap[i] = this.plainArr
+                        setAction(newmap)
+                        i++;
+                        if(i>19){
+                            clearInterval(timerId)
+                            resolve()
+                        }
+                    },75)
+                }
+            },75)
+        })
     }
     // 已完成动画
     completeAnimate = (map,arr)=>{
@@ -98,7 +117,8 @@ class App extends Component {
     }
     //  混合当前的 currentMap 到 Map 中
     blendHandle = (map,currentMap)=>{
-        if(!currentMap || !currentMap.site) return [];
+        let {isMask}= this.state;
+        if(!currentMap || !currentMap.site || isMask) return map;
         let {index,seat,site,autoDown} = currentMap;
         if(!autoDown) return map;
         let newMap = [...map];
@@ -159,14 +179,14 @@ class App extends Component {
         }
         return this.siteMap = newMap
     }
-    // 用于控制 requestAnimationFrame
-    startFlag = false
+    // 是否已经启动 && 用于控制 requestAnimationFrame
+    isStart = false 
     // 开始
     start = (...args)=>{
-        this.startFlag = true
+        this.isStart = true
         let {autoDown} = this
         let callback = ()=>{
-            if(this.startFlag){
+            if(this.isStart){
                 autoDown(...args)
                 requestAnimationFrame(callback)
             }else {
@@ -175,9 +195,25 @@ class App extends Component {
         }
         requestAnimationFrame(callback)
     }
+    decoratorHandle = (fn)=>{
+        return (...arg)=>{
+            if(!this.isStart){
+                if(this.state.isMask){
+                    this.setState({isMask:false},()=>{
+                        this.start()
+                    })
+                }else {
+                    this.start()
+                }
+            }else {
+                fn(...arg)
+            }
+        }
+    }
     // 暂停
     stop = ()=>{
-        this.startFlag = false
+        this.isStart = false ;
+        // this.requestAnimationFrameFlag = false ;
     }
     // 变换
     transform = ()=>{
@@ -193,7 +229,6 @@ class App extends Component {
         }else {
             index += 1
         }
-        // let nextInfo = site[index].info;
         controlChangeAction({
             index
         })
@@ -245,27 +280,66 @@ class App extends Component {
         }
     }
     componentDidMount(){
+        window.addEventListener("keydown",this.decoratorHandle(this.keydownHandle))
+        window.addEventListener("keyup",this.keyupHandle)
         var {controlStartAction} =this.props
         controlStartAction()
-        // this.start()
+    }
+    // 控制键盘事件
+    keyFlag = true ;
+    keydownHandle = (e)=>{
+        if(!this.keyFlag) return ;
+        this.keyFlag = false
+        switch(e.keyCode){
+            case 32:
+                this.speed = 2;
+                return ;
+            case 37:
+                return this.translation(1)
+            case 39:
+                return this.translation(-1)
+            case 38:
+                return this.transform()
+            case 40:
+                this.speed = 2;
+                return ;
+            default:
+                return
+            
+        }
+    }
+    keyupHandle = (e)=>{
+        this.keyFlag = true
+        switch(e.keyCode){
+            case 32 :
+                this.speed = 100;
+                return ;
+            case 40 :
+                this.speed = 100;
+                return ;
+            default:
+                return
+            
+        }
+
     }
     componentWillReceiveProps(next){
         this.isTransform = true
     }
     render() {
-        let {start,stop,translation,down,transform} = this;
+        let {stop,translation,down,transform,decoratorHandle} = this;
         let {map,currentMap} = this.props;
+        let {isMask} = this.state
         let newMap = this.blendHandle(map,currentMap);
         // transform: scale(0.988542);
         return (
         <div data-reactroot="" className="wrap" style={{transform: "scale(1)", paddingTop: "101px", paddingBottom: "59px", marginTop: "-569px"}}>
-            <Tetris currentMap={currentMap} map={newMap}/>
+            <Tetris isMask={isMask} currentMap={currentMap} map={newMap}/>
             <Control 
-            down={down}
+            down={decoratorHandle(down)}
             stop={stop}
-            start={start}
-            transform={transform}
-            translation={translation}/>
+            transform={decoratorHandle(transform)}
+            translation={decoratorHandle(translation)}/>
         </div>
         );
     }

@@ -1,11 +1,9 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import dispatchAction from 'util/dispatchAction'
 
 class App extends Component {
-  constructor (props) {
-    super(props)
-  }
+//   constructor (props) {
+//     super(props)
+//   }
   componentWillMount () {}
   componentWillUnmount () {}
   render () {
