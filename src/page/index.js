@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './index.css';
+import {nextMap} from "../select/index"
 import Tetris from "../page/display/index"
 import Control from "../page/control/index"
 import {connect} from 'react-redux';
@@ -8,8 +9,6 @@ class App extends Component {
     state = {
         isMask:true
     }
-    siteMap = [];
-    isTransform = true ;
     redArr = [2,2,2,2,2,2,2,2,2,2]
     completeArr = [1,1,1,1,1,1,1,1,1,1]
     plainArr = [0,0,0,0,0,0,0,0,0,0]
@@ -21,7 +20,7 @@ class App extends Component {
         if(this.isDied()){
             this.stop()
             this.diedAnimate()
-            return map
+            return 
         }
         let arr = this.isComplete(map);
         if(arr){
@@ -34,7 +33,6 @@ class App extends Component {
             setAction(map)
             controlNextAction()
         }
-        return map
     }
     // 检测是否有已完成的
     isComplete = (map)=>{
@@ -78,9 +76,9 @@ class App extends Component {
                             clearInterval(timerId)
                             resolve()
                         }
-                    },75)
+                    },50)
                 }
-            },75)
+            },50)
         })
     }
     // 已完成动画
@@ -104,7 +102,7 @@ class App extends Component {
         arr.forEach(v=>{
             map.unshift(this.plainArr)
         })
-        this.start()
+        // this.start()
         setAction(map)
         controlNextAction()
     }
@@ -115,74 +113,11 @@ class App extends Component {
         })
         setAction(map)
     }
-    //  混合当前的 currentMap 到 Map 中
-    blendHandle = (map,currentMap)=>{
-        let {isMask}= this.state;
-        if(!currentMap || !currentMap.site || isMask) return map;
-        let {index,seat,site,autoDown} = currentMap;
-        if(!autoDown) return map;
-        let newMap = [...map];
-        let now = site[index].map;
-        let info = site[index].info;
-        let len = now.length -1 ;
-        let [l,t] = seat;
-        let showArr = [];
-        now.forEach((v,k)=>{
-            let s = t-len + k
-            if(s>=0){
-                showArr.push({
-                    line:s,
-                    value:v
-                })
-            }
-        })
-        for(let i =0;i<showArr.length;i++){
-            let v = showArr[i];
-            let {line,value} = v;
-            if(line >= 20) continue ;
-            let arr = [...newMap[line]];
-            let spliceArr;
-            let collide = false ;
-            if(l >= 0){
-                spliceArr = arr.splice(l,info.len)
-                spliceArr = spliceArr.map((val,k)=>{
-                    if( val === 1){
-                        this.isTransform = false
-                        if(value[k] === 1){
-                            collide = true
-                        }
-                    }
-                    return value[k] || val
-                })
-                arr.splice(l,0,...spliceArr)
-            }else {
-                let abs = Math.abs(l);
-                let len = info.len - abs;
-                spliceArr = arr.splice(0,len);
-                let newspliceArr = spliceArr.map((val,k)=>{
-                    if( val === 1){
-                        this.isTransform = false
-                        if(value[k+abs] === 1){
-                            collide = true
-                        }
-                    }
-                    return value[k+abs] || val
-                })
-                arr.splice(0,0,...newspliceArr)
-    
-            } 
-            if(collide){
-                return this.collideHandle(this.siteMap)
-                 
-            }
-            newMap.splice(line,1,arr)
-        }
-        return this.siteMap = newMap
-    }
     // 是否已经启动 && 用于控制 requestAnimationFrame
     isStart = false 
     // 开始
     start = (...args)=>{
+        if(this.isStart) return
         this.isStart = true
         let {autoDown} = this
         let callback = ()=>{
@@ -217,7 +152,8 @@ class App extends Component {
     }
     // 变换
     transform = ()=>{
-        if(!this.isTransform) return
+        var { isTransform} = this.props.nextMap
+        if(!isTransform) return
         let {currentMap,controlChangeAction} = this.props;
         let {index,site,seat} = currentMap;
         let [left,bottom] = seat;
@@ -265,7 +201,7 @@ class App extends Component {
     }
     down = ()=>{
         this.time = 0 ;
-        let {currentMap,controlChangeAction} = this.props;
+        let {currentMap,controlChangeAction,nextMap} = this.props;
         let {index,site,seat,autoDown} = currentMap;
         if(!autoDown) return;
         let {info} = site[index];
@@ -276,7 +212,7 @@ class App extends Component {
                 seat:[seat[0],top+1]
             })
         }else {
-            this.collideHandle(this.siteMap)
+            this.collideHandle(nextMap.map)
         }
     }
     componentDidMount(){
@@ -284,6 +220,12 @@ class App extends Component {
         window.addEventListener("keyup",this.keyupHandle)
         var {controlStartAction} =this.props
         controlStartAction()
+    }
+    componentDidUpdate(){
+        var {collide,map} = this.props.nextMap;
+        if(collide){
+            this.collideHandle(map)
+        }
     }
     // 控制键盘事件
     keyFlag = true ;
@@ -323,18 +265,15 @@ class App extends Component {
         }
 
     }
-    componentWillReceiveProps(next){
-        this.isTransform = true
-    }
     render() {
         let {stop,translation,down,transform,decoratorHandle} = this;
-        let {map,currentMap} = this.props;
+        let {map,currentMap,nextMap} = this.props;
         let {isMask} = this.state
-        let newMap = this.blendHandle(map,currentMap);
+        // let newMap = this.blendHandle(map,currentMap);
         // transform: scale(0.988542);
         return (
         <div data-reactroot="" className="wrap" style={{transform: "scale(1)", paddingTop: "101px", paddingBottom: "59px", marginTop: "-569px"}}>
-            <Tetris isMask={isMask} currentMap={currentMap} map={newMap}/>
+            <Tetris isMask={isMask} currentMap={currentMap} map={nextMap.map}/>
             <Control 
             down={decoratorHandle(down)}
             stop={stop}
@@ -347,6 +286,7 @@ class App extends Component {
 
 const mapStateToProps = (store,ownProps)=>{
 	return {
+        nextMap:nextMap(store),
         map:store.map,
         currentMap:store.currentMap,
         ...ownProps
