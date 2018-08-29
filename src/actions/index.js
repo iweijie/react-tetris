@@ -12,16 +12,9 @@ const setAction = (payload)=>{
         payload
     }
 } 
-const setOldAction = (payload)=>{
-    return {
-        type:setOldInfo,
-        payload
-    }
-} 
 
 const actions = {
     setAction,
-    setOldAction,
     ...controlAction,
 }
 

@@ -1,6 +1,6 @@
 
 import React, {Component} from 'react';
-import {debounce} from "util/baseTool"
+// import {debounce} from "util/baseTool"
 class App extends Component {
     // constructor(props){
     //     super(props);
@@ -11,7 +11,7 @@ class App extends Component {
         // var translationHandle = debounce(translation,100)
         const content = (
             <div className="control" style={{marginTop: "79px"}}>
-                <div onClick={debounce(transform,100)} className="_1pg0 _23pZ _2TvZ" style={{top: "0px", left: "374px"}}>
+                <div onClick={transform} className="_1pg0 _23pZ _2TvZ" style={{top: "0px", left: "374px"}}>
                     <i  className=""></i>
                     <em style={{transform: "translate(0px, 63px) scale(1, 2)"}}></em>
                     <span className="_1zCL">旋转</span>

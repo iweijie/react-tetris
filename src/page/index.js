@@ -4,22 +4,34 @@ import {nextMap} from "../select/index"
 import Tetris from "../page/display/index"
 import Control from "../page/control/index"
 import {connect} from 'react-redux';
-import dispatchAction from "util/dispatchAction"
+import dispatchAction from "../util/dispatchAction"
 class App extends Component {
     state = {
-        isMask:true
     }
+    diedState = false ;
     redArr = [2,2,2,2,2,2,2,2,2,2]
     completeArr = [1,1,1,1,1,1,1,1,1,1]
     plainArr = [0,0,0,0,0,0,0,0,0,0]
-    // 碰撞函数
+    // 加分项
+    scoreMap = [0,1,3,6,10]
+    // 等级项
+    levelMap = [0,100,85,70,55,40,25]
+    // 碰撞检测函数
     collideHandle = (map)=>{
         let {currentMap,controlNextAction,setAction} = this.props;
-        this.speed = 100;
+        this.speed = this.currentLevel;
         currentMap.autoDown = false ;
         if(this.isDied()){
+            this.isAnimate = true
             this.stop()
             this.diedAnimate()
+            .then(()=>{
+                var {controlStartAction,maskAction} =this.props
+                this.isAnimate = false
+                this.diedState = true;
+                maskAction(true)
+                controlStartAction()
+            })
             return 
         }
         let arr = this.isComplete(map);
@@ -27,6 +39,7 @@ class App extends Component {
             this.stop()
             this.completeAnimate(map,arr)
             .then(()=>{
+                this.start()
                 this.complete(map,arr)
             })
         }else {
@@ -76,23 +89,27 @@ class App extends Component {
                             clearInterval(timerId)
                             resolve()
                         }
-                    },50)
+                    },40)
                 }
-            },50)
+            },40)
         })
     }
     // 已完成动画
     completeAnimate = (map,arr)=>{
+        this.isAnimate = true
         return new Promise((resolve)=>{
                 this.changeRed(map,arr)
                 setTimeout(()=>{
+                    this.isAnimate = false
                     resolve()
                 },900)
         })
     }
+    // 动画标识
+    isAnimate = false ;
     // 完成事件
     complete = (map,arr)=>{
-        let {setAction,controlNextAction} = this.props;
+        let {setAction,controlNextAction,scoreAction} = this.props;
         arr = arr.sort((a,b)=>{
             return b - a
         })
@@ -102,8 +119,11 @@ class App extends Component {
         arr.forEach(v=>{
             map.unshift(this.plainArr)
         })
-        // this.start()
+        // 设置 map
         setAction(map)
+        // 加分
+        scoreAction(this.scoreMap[arr.length])
+        // 增加下一个
         controlNextAction()
     }
     changeRed = (map,arr)=>{
@@ -113,15 +133,26 @@ class App extends Component {
         })
         setAction(map)
     }
-    // 是否已经启动 && 用于控制 requestAnimationFrame
-    isStart = false 
+    delayed = 0 ;
     // 开始
     start = (...args)=>{
-        if(this.isStart) return
-        this.isStart = true
+        if(this.stop || this.isAnimate) return ;
+        if(this.diedState){
+            this.diedState = false;
+            let {resetAction} = this.props;
+            resetAction()
+        }
+        let {contorltime,changeTimeAction} = this.props
+        if(contorltime === 0){
+            changeTimeAction(Date.now())
+        }else if(this.delayed){
+            changeTimeAction(Date.now() - this.delayed)
+            this.delayed = 0
+        }
+        let flag = true
         let {autoDown} = this
         let callback = ()=>{
-            if(this.isStart){
+            if(flag){
                 autoDown(...args)
                 requestAnimationFrame(callback)
             }else {
@@ -129,26 +160,29 @@ class App extends Component {
             }
         }
         requestAnimationFrame(callback)
-    }
-    decoratorHandle = (fn)=>{
-        return (...arg)=>{
-            if(!this.isStart){
-                if(this.state.isMask){
-                    this.setState({isMask:false},()=>{
-                        this.start()
-                    })
-                }else {
-                    this.start()
-                }
-            }else {
-                fn(...arg)
-            }
+        this.stop = ()=> {
+            this.delayed = Date.now()
+            flag = false
+            this.stop = null
         }
     }
     // 暂停
-    stop = ()=>{
-        this.isStart = false ;
-        // this.requestAnimationFrameFlag = false ;
+    stop = null ;
+
+    decoratorHandle = (fn)=>{
+        let { maskAction, contorlMask} = this.props;
+        let arr = [32,37,39,38,40];
+        return (e)=>{
+            if(!arr.includes(e.keyCode)) return ;
+            if(!this.stop){
+                if(contorlMask){
+                    maskAction(false)
+                }
+                this.start()
+            }else {
+                fn(e)
+            }
+        }
     }
     // 变换
     transform = ()=>{
@@ -192,7 +226,8 @@ class App extends Component {
         }
     }
     // 控制下落速度
-    speed = 100
+    speed = 100;
+    currentLevel = 100 ;
     time = 0
     autoDown = ()=>{
         this.time ++ ;
@@ -218,8 +253,14 @@ class App extends Component {
     componentDidMount(){
         window.addEventListener("keydown",this.decoratorHandle(this.keydownHandle))
         window.addEventListener("keyup",this.keyupHandle)
-        var {controlStartAction} =this.props
+        var {controlStartAction,contorllevel} =this.props;
+        this.speed = this.currentLevel = this.levelMap[contorllevel]
         controlStartAction()
+    }
+    componentWillReceiveProps(next){
+        if(next.contorllevel !== this.props.contorllevel) {
+            this.speed = this.currentLevel = this.levelMap[next.contorllevel]
+        }
     }
     componentDidUpdate(){
         var {collide,map} = this.props.nextMap;
@@ -234,7 +275,7 @@ class App extends Component {
         this.keyFlag = false
         switch(e.keyCode){
             case 32:
-                this.speed = 2;
+                this.speed = 1;
                 return ;
             case 37:
                 return this.translation(1)
@@ -243,7 +284,7 @@ class App extends Component {
             case 38:
                 return this.transform()
             case 40:
-                this.speed = 2;
+                this.speed = 1;
                 return ;
             default:
                 return
@@ -254,10 +295,10 @@ class App extends Component {
         this.keyFlag = true
         switch(e.keyCode){
             case 32 :
-                this.speed = 100;
+                this.speed = this.currentLevel;
                 return ;
             case 40 :
-                this.speed = 100;
+                this.speed = this.currentLevel;
                 return ;
             default:
                 return
@@ -267,14 +308,18 @@ class App extends Component {
     }
     render() {
         let {stop,translation,down,transform,decoratorHandle} = this;
-        let {map,currentMap,nextMap} = this.props;
-        let {isMask} = this.state
-        // let newMap = this.blendHandle(map,currentMap);
+        let {currentMap,nextMap,contorlMask,contorlscore,contorltime} = this.props;
+        let time ;
+        if(contorltime){
+            time =Date.now() - contorltime
+        }else {
+            time = 0
+        }
         // transform: scale(0.988542);
         return (
         <div data-reactroot="" className="wrap" style={{transform: "scale(1)", paddingTop: "101px", paddingBottom: "59px", marginTop: "-569px"}}>
-            <Tetris isMask={isMask} currentMap={currentMap} map={nextMap.map}/>
-            <Control 
+            <Tetris time={time} score={contorlscore} isMask={contorlMask} currentMap={currentMap} map={nextMap.map}/>
+            <Control
             down={decoratorHandle(down)}
             stop={stop}
             transform={decoratorHandle(transform)}
@@ -288,7 +333,11 @@ const mapStateToProps = (store,ownProps)=>{
 	return {
         nextMap:nextMap(store),
         map:store.map,
+        contorlMask:store.contorlMask,
         currentMap:store.currentMap,
+        contorlscore:store.contorlscore,
+        contorllevel:store.contorllevel,
+        contorltime:store.contorltime,
         ...ownProps
 	}
 }

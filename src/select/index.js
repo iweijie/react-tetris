@@ -7,14 +7,15 @@ const currentMap = state => state.map
 
 const currentGrid = state => state.currentMap
 
+const currentMask = state=>state.contorlMask
+
 
 
 //  混合当前的 currentMap 到 Map 中
-const mixMap = (map, currentMap) => {
+const mixMap = (map, currentMap,currentMask) => {
     let isTransform = true ;
     let collide = false;
-    // let { isMask } = this.state;
-    if (!currentMap || !currentMap.site) return {
+    if (!currentMap || !currentMap.site || currentMask) return {
         map,
         isTransform,
         collide
@@ -95,5 +96,6 @@ const mixMap = (map, currentMap) => {
 export const nextMap = createSelector(
     currentMap,
     currentGrid,
+    currentMask,
     mixMap
 )
