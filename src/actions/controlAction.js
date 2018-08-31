@@ -74,7 +74,6 @@ const levelAction = (payload)=>{
 }
 // 时长  Action
 const changeTimeAction = (payload)=>{
-    console.log("timeAction",payload)
     return {
         type: time,
         payload

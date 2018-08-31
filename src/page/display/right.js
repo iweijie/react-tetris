@@ -35,7 +35,7 @@ class App extends Component {
         return  arr.map(v=>this.scoreClassMap[Number(v)])
     }
     render() {
-        let { currentMap, score ,time } = this.props;
+        let { currentMap, score ,time,level } = this.props;
         let next = currentMap.next;
 
         let nextCom;
@@ -87,7 +87,7 @@ class App extends Component {
                 <div className="iHKP"><span className="bg _2kln"></span><span className="bg _2kln"></span><span className="bg _2kln"></span><span className="bg _2kln"></span><span
                     className="bg _2kln"></span><span className="bg _2hru"></span></div>
                 <p>级别</p>
-                <div className="iHKP"><span className="bg _2B-l"></span></div>
+                <div className="iHKP"><span className={this.scoreClassMap[level]}></span></div>
                 <p>下一个</p>
                 {nextCom}
                 <div className="_8hag">

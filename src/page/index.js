@@ -152,6 +152,11 @@ class App extends Component {
         let flag = true
         let {autoDown} = this
         let callback = ()=>{
+            this.updateTime++
+            if(this.updateTime >= 60){
+                this.updateTime = 0
+                this.setState({})
+            }
             if(flag){
                 autoDown(...args)
                 requestAnimationFrame(callback)
@@ -168,6 +173,8 @@ class App extends Component {
     }
     // 暂停
     stop = null ;
+    // 更新时间
+    updateTime = 0 ;
 
     decoratorHandle = (fn)=>{
         let { maskAction, contorlMask} = this.props;
@@ -250,6 +257,15 @@ class App extends Component {
             this.collideHandle(nextMap.map)
         }
     }
+    // 提升等级
+    updateLevel = (next)=>{
+        var {levelAction,contorllevel,contorltime} = next
+        var now = Date.now()
+        // (2*60*1000)
+        if((now - contorltime - contorllevel*60*1000)> (20*1000)){
+            levelAction(++contorllevel)
+        }
+    }
     componentDidMount(){
         window.addEventListener("keydown",this.decoratorHandle(this.keydownHandle))
         window.addEventListener("keyup",this.keyupHandle)
@@ -263,6 +279,7 @@ class App extends Component {
         }
     }
     componentDidUpdate(){
+        this.updateTime = 0
         var {collide,map} = this.props.nextMap;
         if(collide){
             this.collideHandle(map)
@@ -308,7 +325,7 @@ class App extends Component {
     }
     render() {
         let {stop,translation,down,transform,decoratorHandle} = this;
-        let {currentMap,nextMap,contorlMask,contorlscore,contorltime} = this.props;
+        let {currentMap,nextMap,contorlMask,contorlscore,contorltime,contorllevel} = this.props;
         let time ;
         if(contorltime){
             time =Date.now() - contorltime
@@ -318,7 +335,7 @@ class App extends Component {
         // transform: scale(0.988542);
         return (
         <div data-reactroot="" className="wrap" style={{transform: "scale(1)", paddingTop: "101px", paddingBottom: "59px", marginTop: "-569px"}}>
-            <Tetris time={time} score={contorlscore} isMask={contorlMask} currentMap={currentMap} map={nextMap.map}/>
+            <Tetris time={time} level={contorllevel} score={contorlscore} isMask={contorlMask} currentMap={currentMap} map={nextMap.map}/>
             <Control
             down={decoratorHandle(down)}
             stop={stop}

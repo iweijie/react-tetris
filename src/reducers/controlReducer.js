@@ -38,14 +38,14 @@ function contorlscore(state = 0, action) {
             return state;
     }
 }
-function contorllevel(state = 1, action) {
-    if (action.payload < 1) {
-        action.payload = 1
-    } else if (action.payload > 6) {
-        action.payload = 6
-    }
+function contorllevel(state = 6, action) {
     switch (action.type) {
         case level:
+            if (action.payload < 1) {
+                action.payload = 1
+            } else if (action.payload > 6) {
+                action.payload = 6
+            }
             return action.payload;
         case reset:
             return 1;
@@ -56,10 +56,8 @@ function contorllevel(state = 1, action) {
 function contorltime(state = 0, action) {
     switch (action.type) {
         case time:
-        console.log(state,"test")
-        console.log(action.payload,"test")
-        console.log(state + action.payload,"test")
             return state + action.payload;
+            // return state + action.payload.time;
         case reset:
             return 0;
         default:
