@@ -7,6 +7,8 @@ import {connect} from 'react-redux';
 import dispatchAction from "../util/dispatchAction"
 class App extends Component {
     state = {
+        // 1  PC  0 移动
+        isPC:1
     }
     diedState = false ;
     redArr = [2,2,2,2,2,2,2,2,2,2]
@@ -15,7 +17,7 @@ class App extends Component {
     // 加分项
     scoreMap = [0,1,3,6,10]
     // 等级项
-    levelMap = [0,100,85,70,55,40,25]
+    levelMap = [0,100,80,60,45,30,20]
     // 碰撞检测函数
     collideHandle = (map)=>{
         let {currentMap,controlNextAction,setAction} = this.props;
@@ -212,16 +214,19 @@ class App extends Component {
     }
     // 平移 flag  1 左； -1 右
     translation = (flag)=>{
-        let {currentMap,controlChangeAction} = this.props;
+        let {currentMap,controlChangeAction,nextMap} = this.props;
+        let {isTranslationLeft,isTranslationRight} = nextMap
         let {index,site,seat} = currentMap;
         let {info} = site[index];
         let [left] = seat;
         let newLeft;
         if(flag === 1){
+            if(!isTranslationLeft) return 
             if(left > 0 || -info.l < left ){
                 newLeft = left-1
             }
         }else {
+            if(!isTranslationRight) return 
             if(left < 10-info.len || 10>left + info.len - info.r){
                 newLeft = left+1
             }
@@ -262,9 +267,18 @@ class App extends Component {
         var {levelAction,contorllevel,contorltime} = next
         var now = Date.now()
         // (2*60*1000)
-        if((now - contorltime - contorllevel*60*1000)> (20*1000)){
+        if((now - contorltime - contorllevel*60*1000)> (2*60*1000)){
             levelAction(++contorllevel)
         }
+    }
+    // 设置样式
+    resize = ()=>{
+        if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(window.navigator.userAgent)){
+            this.setState({isPC:false})
+        }else {
+            this.setState({isPC:true})
+        }
+        
     }
     componentDidMount(){
         window.addEventListener("keydown",this.decoratorHandle(this.keydownHandle))
@@ -323,6 +337,7 @@ class App extends Component {
         }
 
     }
+    componentDidMount
     render() {
         let {stop,translation,down,transform,decoratorHandle} = this;
         let {currentMap,nextMap,contorlMask,contorlscore,contorltime,contorllevel} = this.props;

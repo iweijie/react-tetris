@@ -38,7 +38,7 @@ function contorlscore(state = 0, action) {
             return state;
     }
 }
-function contorllevel(state = 6, action) {
+function contorllevel(state = 1, action) {
     switch (action.type) {
         case level:
             if (action.payload < 1) {

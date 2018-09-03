@@ -7,14 +7,14 @@ class App extends Component {
     componentWillMount() { }
     componentWillUnmount() { }
     // 01234567890；10-灰色8；11-灰色：; 12-：;
-    scoreClassMap = ["bg _2hru", "bg _2B-l", "bg ShGQ", "bg _2V1K", "bg _3bYF", "bg _1Z7B", "bg _1-BZ", "bg _3_id", "bg _3_Z_", "bg bNJM", "bg _2kln", "bg hOfM", "bg _2tuY"];
+    classMap = ["bg _2hru", "bg _2B-l", "bg ShGQ", "bg _2V1K", "bg _3bYF", "bg _1Z7B", "bg _1-BZ", "bg _3_id", "bg _3_Z_", "bg bNJM", "bg _2kln", "bg hOfM", "bg _2tuY"];
 
     getScoreCom = (num)=>{
         let arr = String(num).split("")
         while(arr.length <6){
             arr.unshift(10)
         }
-        return arr.map(v=>this.scoreClassMap[Number(v)])
+        return arr.map(v=>this.classMap[Number(v)])
     }
     getTimeCom = (time)=>{
         var difference = Math.round(time/1000);
@@ -32,7 +32,7 @@ class App extends Component {
         }else {
             arr.push( Math.floor(second/10),second%10)
         }
-        return  arr.map(v=>this.scoreClassMap[Number(v)])
+        return  arr.map(v=>this.classMap[Number(v)])
     }
     render() {
         let { currentMap, score ,time,level } = this.props;
@@ -87,7 +87,7 @@ class App extends Component {
                 <div className="iHKP"><span className="bg _2kln"></span><span className="bg _2kln"></span><span className="bg _2kln"></span><span className="bg _2kln"></span><span
                     className="bg _2kln"></span><span className="bg _2hru"></span></div>
                 <p>级别</p>
-                <div className="iHKP"><span className={this.scoreClassMap[level]}></span></div>
+                <div className="iHKP"><span className={this.classMap[level]}></span></div>
                 <p>下一个</p>
                 {nextCom}
                 <div className="_8hag">
@@ -112,9 +112,3 @@ class App extends Component {
 }
 
 export default App
-
-{/* <span className="bg _2B-l"></span>
-<span className="bg _2V1K"></span>
-<span className="bg hOfM"></span>
-<span className="bg _3bYF"></span>
-<span className="bg _3bYF"></span> */}
