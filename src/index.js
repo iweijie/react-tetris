@@ -6,7 +6,7 @@ import thunk from 'redux-thunk'
 import {createLogger} from 'redux-logger'
 import App from './page/index';
 import reducer from './reducers'
-import "util/adaptive"
+import "./util/adaptive"
 import registerServiceWorker from './registerServiceWorker';
 
 const middleware = [thunk]

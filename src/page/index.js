@@ -1,32 +1,53 @@
 import React, { Component } from 'react';
 import './index.css';
+import {nextMap} from "../select/index"
 import Tetris from "../page/display/index"
 import Control from "../page/control/index"
 import {connect} from 'react-redux';
-import dispatchAction from "util/dispatchAction"
+import dispatchAction from "../util/dispatchAction"
 class App extends Component {
     state = {
-        showMap:[]
+        // 1  PC  0 移动
+        isPC:1
     }
+    diedState = false ;
     redArr = [2,2,2,2,2,2,2,2,2,2]
+    completeArr = [1,1,1,1,1,1,1,1,1,1]
     plainArr = [0,0,0,0,0,0,0,0,0,0]
-    // 碰撞函数
+    // 加分项
+    scoreMap = [0,1,3,6,10]
+    // 等级项
+    levelMap = [0,100,80,60,45,30,20]
+    // 碰撞检测函数
     collideHandle = (map)=>{
         let {currentMap,controlNextAction,setAction} = this.props;
-        
+        this.speed = this.currentLevel;
         currentMap.autoDown = false ;
+        if(this.isDied()){
+            this.isAnimate = true
+            this.stop()
+            this.diedAnimate()
+            .then(()=>{
+                var {controlStartAction,maskAction} =this.props
+                this.isAnimate = false
+                this.diedState = true;
+                maskAction(true)
+                controlStartAction()
+            })
+            return 
+        }
         let arr = this.isComplete(map);
         if(arr){
             this.stop()
-            this.completeAniment(map,arr)
+            this.completeAnimate(map,arr)
             .then(()=>{
+                this.start()
                 this.complete(map,arr)
             })
         }else {
             setAction(map)
             controlNextAction()
         }
-        return map
     }
     // 检测是否有已完成的
     isComplete = (map)=>{
@@ -38,18 +59,59 @@ class App extends Component {
         }
         if(arr.length) return arr
     }
+    // 是否死亡
+    isDied = ()=>{
+        let {currentMap} = this.props;
+        let {index,seat,site} = currentMap;
+        let {info} = site[index];
+        let bottom = seat[1];
+        let {t=0,b=0,len} = info
+        return (len - t - b >= bottom)
+    }
+    // 死亡动画
+    diedAnimate = ()=>{
+        let {map,setAction} = this.props;
+        let i = 19;
+        let timerId,newmap = map;
+        return new Promise((resolve)=>{
+            timerId = setInterval(()=>{
+                newmap = [...newmap];
+                newmap[i] = this.completeArr
+                setAction(newmap)
+                i--;
+                if(i<0){
+                    clearInterval(timerId)
+                    i = 0;
+                    timerId = setInterval(()=>{
+                        newmap = [...newmap];
+                        newmap[i] = this.plainArr
+                        setAction(newmap)
+                        i++;
+                        if(i>19){
+                            clearInterval(timerId)
+                            resolve()
+                        }
+                    },40)
+                }
+            },40)
+        })
+    }
     // 已完成动画
-    completeAniment = (map,arr)=>{
+    completeAnimate = (map,arr)=>{
+        this.isAnimate = true
         return new Promise((resolve)=>{
                 this.glitter(map,arr)
                 setTimeout(()=>{
+                    this.isAnimate = false
                     resolve()
                 },900)
         })
     }
+    // 动画标识
+    isAnimate = false ;
     // 完成事件
     complete = (map,arr)=>{
-        let {setAction,controlNextAction} = this.props;
+        let {setAction,controlNextAction,scoreAction} = this.props;
         arr = arr.sort((a,b)=>{
             return b - a
         })
@@ -59,8 +121,11 @@ class App extends Component {
         arr.forEach(v=>{
             map.unshift(this.plainArr)
         })
-        this.start()
+        // 设置 map
         setAction(map)
+        // 加分
+        scoreAction(this.scoreMap[arr.length])
+        // 增加下一个
         controlNextAction()
     }
     // 闪烁
@@ -71,83 +136,31 @@ class App extends Component {
         })
         setAction(map)
     }
-    //  混合当前的 currentMap 到 Map 中
-    blendHandle = (map,currentMap)=>{
-        if(!currentMap || !currentMap.site) return [];
-        let {index,seat,site,autoDown} = currentMap;
-        if(!autoDown) return map;
-        let newMap = [...map];
-        let now = site[index].map;
-        let info = site[index].info;
-        let len = now.length -1 ;
-        let [l,t] = seat;
-        let showArr = [];
-        now.forEach((v,k)=>{
-            let s = t-len + k
-            if(s>=0){
-                showArr.push({
-                    line:s,
-                    value:v
-                })
-            }
-        })
-        let isTransform = true ;
-        for(let i =0;i<showArr.length;i++){
-            let v = showArr[i];
-            let {line,value} = v;
-            if(line >= 20) continue ;
-            let arr = [...newMap[line]];
-            let spliceArr;
-            // 是否碰撞
-            let collide = false ;
-            // 是否可以变换
-            if(l >= 0){
-                spliceArr = arr.splice(l,info.len)
-                spliceArr = spliceArr.map((val,k)=>{
-                    if(val === 1){
-                        isTransform = false
-                        if(value[k] === 1){
-                            collide = true
-                        }
-                    }
-                    
-                    return value[k] || val
-                })
-                arr.splice(l,0,...spliceArr)
-            }else {
-                let abs = Math.abs(l);
-                let len = info.len - abs;
-                spliceArr = arr.splice(0,len);
-                let newspliceArr = spliceArr.map((val,k)=>{
-                    
-                    if(val === 1){
-                        isTransform = false
-                        if(value[k+abs] === 1){
-                            collide = true
-                        }
-                    }
-                    return value[k+abs] || val
-                })
-                arr.splice(0,0,...newspliceArr)
-    
-            } 
-            if(collide){
-                return this.collideHandle(this.state.showMap)
-                 
-            }
-            newMap.splice(line,1,arr)
-        }
-        this.isTransform = isTransform
-        return newMap
-    }
-    // 用于控制 requestAnimationFrame 的变量
-    startFlag = false
+    delayed = 0 ;
     // 开始
     start = (...args)=>{
-        this.startFlag = true
+        if(this.stop || this.isAnimate) return ;
+        if(this.diedState){
+            this.diedState = false;
+            let {resetAction} = this.props;
+            resetAction()
+        }
+        let {contorltime,changeTimeAction} = this.props
+        if(contorltime === 0){
+            changeTimeAction(Date.now())
+        }else if(this.delayed){
+            changeTimeAction(Date.now() - this.delayed)
+            this.delayed = 0
+        }
+        let flag = true
         let {autoDown} = this
         let callback = ()=>{
-            if(this.startFlag){
+            this.updateTime++
+            if(this.updateTime >= 60){
+                this.updateTime = 0
+                this.setState({})
+            }
+            if(flag){
                 autoDown(...args)
                 requestAnimationFrame(callback)
             }else {
@@ -155,19 +168,42 @@ class App extends Component {
             }
         }
         requestAnimationFrame(callback)
+        this.stop = ()=> {
+            this.delayed = Date.now()
+            flag = false
+            this.stop = null
+        }
     }
     // 暂停
-    stop = ()=>{
-        this.startFlag = false
+    stop = null ;
+    // 更新时间
+    updateTime = 0 ;
+
+    decoratorHandle = (fn)=>{
+        let { maskAction, contorlMask} = this.props;
+        let arr = [32,37,39,38,40];
+        return (e)=>{
+            if(!arr.includes(e.keyCode)) return ;
+            if(!this.stop){
+                if(contorlMask){
+                    maskAction(false)
+                }
+                this.start()
+            }else {
+                fn(e)
+            }
+        }
     }
     // 变换
     transform = ()=>{
-        if(!this.isTransform) return ;
+        var { isTransform} = this.props.nextMap
+        if(!isTransform) return
         let {currentMap,controlChangeAction} = this.props;
         let {index,site,seat} = currentMap;
-        let [left] = seat;
+        let [left,bottom] = seat;
         let info = site[index].info;
         if(left < 0 || left + info.len > 10) return
+        if(bottom > 19 ) return
         if(index + 1 >= site.length){
             index = 0 
         }else {
@@ -179,16 +215,19 @@ class App extends Component {
     }
     // 平移 flag  1 左； -1 右
     translation = (flag)=>{
-        let {currentMap,controlChangeAction} = this.props;
+        let {currentMap,controlChangeAction,nextMap} = this.props;
+        let {isTranslationLeft,isTranslationRight} = nextMap
         let {index,site,seat} = currentMap;
         let {info} = site[index];
         let [left] = seat;
         let newLeft;
         if(flag === 1){
+            if(!isTranslationLeft) return 
             if(left > 0 || -info.l < left ){
                 newLeft = left-1
             }
         }else {
+            if(!isTranslationRight) return 
             if(left < 10-info.len || 10>left + info.len - info.r){
                 newLeft = left+1
             }
@@ -200,7 +239,8 @@ class App extends Component {
         }
     }
     // 控制下落速度
-    speed = 100
+    speed = 100;
+    currentLevel = 100 ;
     time = 0
 
     autoDown = ()=>{
@@ -210,7 +250,7 @@ class App extends Component {
     }
     down = ()=>{
         this.time = 0 ;
-        let {currentMap,controlChangeAction} = this.props;
+        let {currentMap,controlChangeAction,nextMap} = this.props;
         let {index,site,seat,autoDown} = currentMap;
         if(!autoDown) return;
         let {info} = site[index];
@@ -221,36 +261,103 @@ class App extends Component {
                 seat:[seat[0],top+1]
             })
         }else {
-            this.collideHandle(this.state.showMap )
+            this.collideHandle(nextMap.map)
         }
     }
+    // 提升等级
+    updateLevel = (next)=>{
+        var {levelAction,contorllevel,contorltime} = next
+        var now = Date.now()
+        // (2*60*1000)
+        if((now - contorltime - contorllevel*60*1000)> (2*60*1000)){
+            levelAction(++contorllevel)
+        }
+    }
+    // 设置样式
+    resize = ()=>{
+        if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(window.navigator.userAgent)){
+            this.setState({isPC:false})
+        }else {
+            this.setState({isPC:true})
+        }
+        
+    }
     componentDidMount(){
-        var {controlStartAction} =this.props
+        window.addEventListener("keydown",this.decoratorHandle(this.keydownHandle))
+        window.addEventListener("keyup",this.keyupHandle)
+        var {controlStartAction,contorllevel} =this.props;
+        this.speed = this.currentLevel = this.levelMap[contorllevel]
         controlStartAction()
-        this.start()
     }
     componentWillReceiveProps(next){
-        var {map,currentMap} = this.props;
-        if(next.map != map || next.currentMap != currentMap){
-            let showMap = this.blendHandle(map,currentMap);
-            this.setState({showMap})
+        if(next.contorllevel !== this.props.contorllevel) {
+            this.speed = this.currentLevel = this.levelMap[next.contorllevel]
+        }
+    }
+    componentDidUpdate(){
+        this.updateTime = 0
+        var {collide,map} = this.props.nextMap;
+        if(collide){
+            this.collideHandle(map)
+        }
+    }
+    // 控制键盘事件
+    keyFlag = true ;
+    keydownHandle = (e)=>{
+        if(!this.keyFlag) return ;
+        this.keyFlag = false
+        switch(e.keyCode){
+            case 32:
+                this.speed = 1;
+                return ;
+            case 37:
+                return this.translation(1)
+            case 39:
+                return this.translation(-1)
+            case 38:
+                return this.transform()
+            case 40:
+                this.speed = 1;
+                return ;
+            default:
+                return
+            
+        }
+    }
+    keyupHandle = (e)=>{
+        this.keyFlag = true
+        switch(e.keyCode){
+            case 32 :
+                this.speed = this.currentLevel;
+                return ;
+            case 40 :
+                this.speed = this.currentLevel;
+                return ;
+            default:
+                return
+            
         }
 
     }
+    componentDidMount
     render() {
-        let {start,stop,translation,down,transform} = this;
-        let {showMap } =this.state
-        let {map,currentMap} = this.props;
+        let {stop,translation,down,transform,decoratorHandle} = this;
+        let {currentMap,nextMap,contorlMask,contorlscore,contorltime,contorllevel} = this.props;
+        let time ;
+        if(contorltime){
+            time =Date.now() - contorltime
+        }else {
+            time = 0
+        }
         // transform: scale(0.988542);
         return (
         <div data-reactroot="" className="wrap" style={{transform: "scale(1)", paddingTop: "101px", paddingBottom: "59px", marginTop: "-569px"}}>
-            <Tetris map={showMap}/>
-            <Control 
-            down={down}
+            <Tetris time={time} level={contorllevel} score={contorlscore} isMask={contorlMask} currentMap={currentMap} map={nextMap.map}/>
+            <Control
+            down={decoratorHandle(down)}
             stop={stop}
-            start={start}
-            transform={transform}
-            translation={translation}/>
+            transform={decoratorHandle(transform)}
+            translation={decoratorHandle(translation)}/>
         </div>
         );
     }
@@ -258,8 +365,13 @@ class App extends Component {
 
 const mapStateToProps = (store,ownProps)=>{
 	return {
+        nextMap:nextMap(store),
         map:store.map,
+        contorlMask:store.contorlMask,
         currentMap:store.currentMap,
+        contorlscore:store.contorlscore,
+        contorllevel:store.contorllevel,
+        contorltime:store.contorltime,
         ...ownProps
 	}
 }

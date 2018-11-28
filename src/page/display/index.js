@@ -5,25 +5,16 @@ import Diamonds from "./diamonds"
 import Right from "./right"
 import Mask from "./mask"
 class App extends Component {
-    // constructor(props) {
-    //     super(props)
-    // }
-    componentWillMount(){
-
-    }
-    componentWillUnmount(){
-        
-    }
     render() {
-        var {map} = this.props;
+        var {map,currentMap,isMask,score,time,level} = this.props;
         const content = (
             <div className="_1fjB">
                 <Wrap />
                 <div className="_2iZA">
                     <div className="_2lJh">
                         <Diamonds map={map}/>
-                        <Mask show={false}/>
-                        <Right />
+                        <Mask show={isMask}/>
+                        <Right time={time} score={score} level={level} currentMap={currentMap}/>
                     </div>
                 </div>
             </div>
