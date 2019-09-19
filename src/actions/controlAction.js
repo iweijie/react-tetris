@@ -9,77 +9,77 @@ export const level = "control-level";
 export const time = "control-time";
 
 const mapsKeys = Object.keys(maps)
-const getNewMap = function(){
-    var i = Math.floor(Math.random()*7)
+const getNewMap = function () {
+    var i = Math.floor(Math.random() * mapsKeys.length)
     var site = maps[mapsKeys[i]];
     var b = site[0].info.b;
-    var seat = b ? [4,b]:[4,0];
-    return  {
-        autoDown:true,
-        index:0,
-        next:null,
+    var seat = b ? [4, b] : [4, 0];
+    return {
+        autoDown: true,
+        index: 0,
+        next: null,
         seat,
         site
     }
 }
-const controlStartAction = ()=>{
+const controlStartAction = () => {
     var payload = getNewMap()
     payload.next = getNewMap()
     return {
-        type:start,
+        type: start,
         payload
     }
 }
 
 //   Action
-const controlChangeAction = (payload)=>{
+const controlChangeAction = (payload) => {
     return {
-        type:change,
+        type: change,
         payload
     }
 }
 // 方块  Action
-const controlNextAction = (payload)=>{
+const controlNextAction = (payload) => {
     return {
-        type:next,
-        payload:getNewMap()
+        type: next,
+        payload: getNewMap()
     }
 }
 // 遮罩  Action
-const maskAction = (payload)=>{
+const maskAction = (payload) => {
     return {
         type: mask,
-        payload:payload
+        payload: payload
     }
 }
 // 分数  Action
-const scoreAction = (payload)=>{
+const scoreAction = (payload) => {
     return {
         type: score,
-        payload:payload
+        payload: payload
     }
 }
 // 重置  Action
-const resetAction = (payload)=>{
+const resetAction = (payload) => {
     return {
         type: reset
     }
 }
 // 难度  Action
-const levelAction = (payload)=>{
+const levelAction = (payload) => {
     return {
         type: level,
         payload
     }
 }
 // 时长  Action
-const changeTimeAction = (payload)=>{
+const changeTimeAction = (payload) => {
     return {
         type: time,
         payload
     }
 }
-export default { 
+export default {
     controlStartAction,
     controlChangeAction,
     controlNextAction,
@@ -89,4 +89,3 @@ export default {
     levelAction,
     changeTimeAction
 }
- 

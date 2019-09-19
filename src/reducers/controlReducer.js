@@ -57,7 +57,7 @@ function contorltime(state = 0, action) {
     switch (action.type) {
         case time:
             return state + action.payload;
-            // return state + action.payload.time;
+        // return state + action.payload.time;
         case reset:
             return 0;
         default:

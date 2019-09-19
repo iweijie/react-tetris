@@ -1,5 +1,6 @@
+/* eslint-disable no-loop-func */
 import { createSelector } from "reselect"
-
+import { get, set, forEach } from 'lodash'
 
 let siteMap = [];
 
@@ -7,34 +8,29 @@ const currentMap = state => state.map
 
 const currentGrid = state => state.currentMap
 
-const currentMask = state=>state.contorlMask
+const currentMask = state => state.contorlMask
 
 // map  当前图
 // now  当前移动块
 // info 当前移动块信息
 // seat 当前移动块位置
-const isTranslation = (map,now,info,seat)=>{
-    let [l,b] = seat
+const isTranslation = (map, now, info, seat) => {
+    let [l = 0, b = 0] = seat
     let isTranslationLeft = true;
     let isTranslationRight = true;
-    // console.log(now)
-    // console.log(info)
-    // console.log(seat)
-    let len = now.length,i = 0;
-    for(;i<len;i++){
-        let height = b - (len -i - 1)
-        if(!now[i].includes(1) || height < 0 || height > 19) continue ;
+    let len = now.length, i = 0;
+
+    for (; i < len; i++) {
+        let height = b - (len - i - 1)
+        if (!now[i].includes(1) || height < 0 || height > 19) continue;
         let start = now[i].indexOf(1)
         let end = now[i].lastIndexOf(1)
         let arr = map[height]
-        console.log(l,"l--------")
-        console.log(start,"start--------")
-        console.log(end,"end--------")
-        console.log(arr,"arr--------")
-        if(arr[l + start -1] === 1){
+
+        if (arr[l + start - 1] === 1) {
             isTranslationLeft = false
         }
-        if(arr[l + end + 1] === 1){
+        if (arr[l + end + 1] === 1) {
             isTranslationRight = false
         }
     }
@@ -45,10 +41,10 @@ const isTranslation = (map,now,info,seat)=>{
 
 }
 
-//  混合当前的 currentMap 到 Map 中
-const mixMap = (map, currentMap,currentMask) => {
+//  混合当前移动块 到 Map 中
+const mixMap = (map, currentMap, currentMask) => {
     // 是否能够变换
-    let isTransform = true ;
+    let isTransform = true;
     // 是否碰撞
     let collide = false;
     // 是否能够左平移
@@ -57,15 +53,15 @@ const mixMap = (map, currentMap,currentMask) => {
     // let isTranslationRight = true;
 
     let { index, seat, site, autoDown } = currentMap;
-    // console.log(currentMap,"111111111111")
+
     if (!autoDown || !currentMap || !currentMap.site || currentMask) return {
         map,
         isTransform,
         collide,
-        isTranslationLeft:false,
-        isTranslationRight:false,
+        isTranslationLeft: false,
+        isTranslationRight: false,
     };
-    
+
     let newMap = [...map];
     let now = site[index].map;
     let info = site[index].info;
@@ -117,26 +113,26 @@ const mixMap = (map, currentMap,currentMask) => {
         }
         if (collide) {
             return {
-                map:siteMap,
+                map: siteMap,
                 isTransform,
                 collide,
-                isTranslationLeft:false,
-                isTranslationRight:false,
+                isTranslationLeft: false,
+                isTranslationRight: false,
             }
 
         }
         newMap.splice(line, 1, arr)
     }
-    let isTranslationInfo = isTranslation(map,now,info,seat);
-    console.log(isTranslationInfo,"1111111111111")
+    let isTranslationInfo = isTranslation(map, now, info, seat);
     siteMap = newMap
     return {
-        map:newMap,
+        map: newMap,
         isTransform,
         collide,
         ...isTranslationInfo
     }
 }
+
 export const nextMap = createSelector(
     currentMap,
     currentGrid,
