@@ -114,12 +114,12 @@ class App extends Component {
     // 已完成动画
     completeAnimate = (map, arr) => {
         this.isAnimate = true
-        return new Promise((resolve) => {
-            this.changeRed(map, arr)
-            setTimeout(() => {
-                this.isAnimate = false
-                resolve()
-            }, 900)
+        return new Promise((resolve)=>{
+                this.glitter(map,arr)
+                setTimeout(()=>{
+                    this.isAnimate = false
+                    resolve()
+                },900)
         })
     }
     // 完成事件
@@ -141,9 +141,10 @@ class App extends Component {
         // 增加下一个
         controlNextAction()
     }
-    changeRed = (map, arr) => {
-        let { setAction } = this.props;
-        arr.forEach(v => {
+    // 闪烁
+    glitter = (map,arr)=>{
+        let {setAction} = this.props;
+        arr.forEach(v=>{
             map[v] = this.redArr
         })
         setAction(map)
@@ -246,9 +247,10 @@ class App extends Component {
             })
         }
     }
-    autoDown = () => {
-        this.time++;
-        if (this.time < this.speed) return;
+
+    autoDown = ()=>{
+        this.time ++ ;
+        if(this.time < this.speed) return ;
         this.down()
     }
     down = () => {
