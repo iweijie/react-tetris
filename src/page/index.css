@@ -268,7 +268,7 @@ body {
 }
 ._20Jp {
 	width:224px;
-	height:200px;
+	height:300px;
 	left:12px;
 	text-align:center;
 	overflow:hidden
@@ -280,6 +280,18 @@ body {
 ._20Jp p {
 	width:100%;
 	line-height:1.4;
+	left:0;
+	font-family:initial;
+	letter-spacing:6px;
+	text-shadow:1px 1px 1px hsla(0,0%,100%,.35)
+}
+
+._20Jp span {
+	position: absolute;
+	top: 170px;
+	width:100%;
+	line-height:1.2;
+	/* font-size: 14px; */
 	left:0;
 	font-family:initial;
 	letter-spacing:6px;
@@ -363,6 +375,12 @@ body {
 }
 ._1pg0.RBZg i {
 	background:#2dc421;
+	background:-moz-linear-gradient(top,#4bc441,#4bc441)
+}
+
+._1pg0.disable i {
+	background:#ccc;
+	/* background:#2dc421; */
 	background:-moz-linear-gradient(top,#4bc441,#4bc441)
 }
 ._1pg0._3kg_ i {

@@ -36,21 +36,11 @@ class App extends Component {
         this.speed = this.currentLevel;
         currentMap.autoDown = false;
         if (this.isGameOver()) {
-            this.isAnimate = true
-            this.stop()
-            this.gameOverAnimate()
-                .then(() => {
-                    const { controlStartAction, maskAction } = this.props
-                    this.isAnimate = false
-                    this.diedState = true;
-                    maskAction(true)
-                    controlStartAction()
-                })
-            return
+            return this.gameOver()
         }
         let componentIndexList = this.isComplete(map);
         if (!isEmpty(componentIndexList)) {
-            this.stop()
+            this.stop && this.stop()
             this.completeAnimate(map, componentIndexList)
                 .then(() => {
                     this.start()
@@ -61,6 +51,20 @@ class App extends Component {
 
         setAction(map)
         controlNextAction()
+    }
+    // 完结动画
+    gameOver = () => {
+        const { controlStartAction, maskAction } = this.props
+        if (this.diedState) return
+        this.isAnimate = true
+        this.stop && this.stop()
+        this.diedState = true;
+        this.gameOverAnimate()
+            .then(() => {
+                this.isAnimate = false
+                maskAction(true)
+                controlStartAction()
+            })
     }
     // 检测是否有已完成的
     isComplete = (map) => {
@@ -114,12 +118,12 @@ class App extends Component {
     // 已完成动画
     completeAnimate = (map, arr) => {
         this.isAnimate = true
-        return new Promise((resolve)=>{
-                this.glitter(map,arr)
-                setTimeout(()=>{
-                    this.isAnimate = false
-                    resolve()
-                },900)
+        return new Promise((resolve) => {
+            this.glitter(map, arr)
+            setTimeout(() => {
+                this.isAnimate = false
+                resolve()
+            }, 900)
         })
     }
     // 完成事件
@@ -142,9 +146,9 @@ class App extends Component {
         controlNextAction()
     }
     // 闪烁
-    glitter = (map,arr)=>{
-        let {setAction} = this.props;
-        arr.forEach(v=>{
+    glitter = (map, arr) => {
+        let { setAction } = this.props;
+        arr.forEach(v => {
             map[v] = this.redArr
         })
         setAction(map)
@@ -203,6 +207,16 @@ class App extends Component {
             }
         }
     }
+
+    selfStarting = () => {
+        let { maskAction, contorlMask } = this.props;
+        if (!this.stop) {
+            if (contorlMask) {
+                maskAction(false)
+            }
+            this.start()
+        }
+    }
     // 变换
     transform = () => {
         var { isTransform } = this.props.nextMap
@@ -248,9 +262,9 @@ class App extends Component {
         }
     }
 
-    autoDown = ()=>{
-        this.time ++ ;
-        if(this.time < this.speed) return ;
+    autoDown = () => {
+        this.time++;
+        if (this.time < this.speed) return;
         this.down()
     }
     down = () => {
@@ -341,9 +355,12 @@ class App extends Component {
         }
 
     }
+    reStart = () => {
+        this.props.restartAction()
+    }
     render() {
         const { isPC } = this.state
-        let { stop, translation, down, transform, decoratorHandle } = this;
+        let { stop, translation, down, transform, decoratorHandle, selfStarting, gameOver } = this;
         let { currentMap, nextMap, contorlMask, contorlscore, contorltime, contorllevel } = this.props;
         let time;
         if (contorltime) {
@@ -353,13 +370,15 @@ class App extends Component {
         }
         const scale = isPC ? 0.8 : 1
         return (
-            <div data-reactroot="" className="wrap" style={{ transform: `scale(${scale})`, paddingTop: "101px", paddingBottom: "59px", marginTop: "-569px" }}>
+            <div className="wrap" style={{ transform: `scale(${scale})`, paddingTop: "101px", paddingBottom: "59px", marginTop: "-569px" }}>
                 <Tetris time={time} level={contorllevel} score={contorlscore} isMask={contorlMask} currentMap={currentMap} map={nextMap.map} />
                 <Control
-                    down={decoratorHandle(down)}
+                    down={down}
                     stop={stop}
-                    transform={decoratorHandle(transform)}
-                    translation={decoratorHandle(translation)} />
+                    start={selfStarting}
+                    restart={gameOver}
+                    transform={transform}
+                    translation={translation} />
             </div>
         );
     }

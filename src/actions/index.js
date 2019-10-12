@@ -5,16 +5,25 @@
 import controlAction from "./controlAction"
 export const setInfo = "setInfo"
 export const setOldInfo = "setOldInfo"
-
-const setAction = (payload)=>{
+export const restart = "restart"
+const setAction = (payload) => {
     return {
-        type:setInfo,
+        type: setInfo,
         payload
     }
-} 
+}
+
+
+const restartAction = (payload) => {
+    return {
+        type: restart
+    }
+}
+
 
 const actions = {
     setAction,
+    restartAction,
     ...controlAction,
 }
 
