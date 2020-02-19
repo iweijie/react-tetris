@@ -9,6 +9,7 @@ export const level = "control-level";
 export const time = "control-time";
 
 const mapsKeys = Object.keys(maps)
+
 const getNewMap = function () {
     var i = Math.floor(Math.random() * mapsKeys.length)
     var site = maps[mapsKeys[i]];
