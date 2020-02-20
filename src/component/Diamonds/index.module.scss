@@ -1,9 +1,39 @@
-.diamonds-wrap {
+.wrap {
 	border: 2px solid #000;
 	padding: 3px 1px 1px 3px;
 	width: 228px;
+	overflow: hidden;
+}
+.diamonds-wrap {
+	position: relative;
 	p {
 		width: 220px;
 		height: 22px;
+	}
+
+	.block {
+		position: absolute;
+		width: 100%;
+		// top: 0;
+		// left: 0;
+	}
+	.block-item {
+		height: 22px;
+		:global(.c) {
+			border-color: red;
+		}
+	}
+	.block-chunk {
+		display: block;
+		width: 20px;
+		height: 20px;
+		padding: 2px;
+		border: 2px solid transparent;
+		margin: 0 2px 2px 0;
+		float: left;
+		opacity: 0;
+		&::after {
+			display: none;
+		}
 	}
 }

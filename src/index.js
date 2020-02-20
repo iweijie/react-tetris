@@ -1,24 +1,15 @@
 import React from "react";
-import { createStore, applyMiddleware } from "redux";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
-import thunk from "redux-thunk";
-import { createLogger } from "redux-logger";
-import App from "./page/index";
-import reducer from "./reducers";
-import "./util/adaptive";
+import Tetris from "./containers/Tetris";
+import { store } from "./store";
+import "./utils/adaptive";
 import * as serviceWorker from "./serviceWorker";
-
-const middleware = [thunk];
-if (process.env.NODE_ENV !== "production") {
-	middleware.push(createLogger());
-}
-
-const store = createStore(reducer, applyMiddleware(...middleware));
+import './index.css'
 
 ReactDOM.render(
 	<Provider store={store}>
-		<App />
+		<Tetris />
 	</Provider>,
 	document.getElementById("root")
 );
