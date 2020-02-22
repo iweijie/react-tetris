@@ -2,13 +2,11 @@ import React from "react";
 import { map, get, includes } from "lodash";
 import styles from "./index.module.scss";
 
-const getPositionStyle = (coord = [], block) => {
+const getPositionStyle = (coord = []) => {
 	const [left, top] = coord;
-	const info = get(block, "info", { t: 0, l: 0, b: 0, r: 0 });
-	const { t, l, b, len } = info;
 	return {
 		left: left * 22 + "px",
-		top: (top - (len - b - t)) * 22 + "px"
+		top: top  * 22 + "px"
 	};
 };
 
@@ -25,19 +23,16 @@ const Diamonds = props => {
 					return <p key={k}>{bs}</p>;
 				})}
 
-				<div className={styles["block"]} style={getPositionStyle(coord, block)}>
+				<div className={styles["block"]} style={getPositionStyle(coord)}>
 					{map(get(block, "map", []), (item, k) => {
-						// if (includes(item, 1)) {
-							return (
-								<div key={k} className={styles["block-item"]}>
-									{map(item, (val, kes) => {
-										let className = val ? "c" : styles["block-chunk"];
-										return <b key={kes} className={className}></b>;
-									})}
-								</div>
-							);
-						// }
-						// return null;
+						return (
+							<div key={k} className={styles["block-item"]}>
+								{map(item, (val, kes) => {
+									let className = val ? "c" : styles["block-chunk"];
+									return <b key={kes} className={className}></b>;
+								})}
+							</div>
+						);
 					})}
 				</div>
 			</div>

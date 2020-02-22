@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { map } from "lodash";
 import styles from "./index.module.scss";
 
@@ -43,4 +43,4 @@ const Wrap = props => {
 	);
 };
 
-export default Wrap;
+export default memo(Wrap);

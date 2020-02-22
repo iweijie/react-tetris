@@ -1,6 +1,9 @@
-import { noop, isEmpty } from "lodash";
+import { noop, isEmpty, isObject, includes, forEach, cloneDeep } from "lodash";
+import getNewBlock from "@/utils/blockMaps";
 import { store, reducers } from "../store";
 import {
+	cHeight,
+	cWidth,
 	Running,
 	Stop,
 	Initially,
@@ -8,16 +11,18 @@ import {
 	CompleteList,
 	PlainList,
 	ScoreList,
-	LevelList
+	LevelList,
+	createMap
 } from "@/utils/const";
 import { engine } from "@/utils/index";
 
-export default class Control {
+class Control {
 	constructor() {
-		this.time = 0;
-		this.diedState = false;
+		//  控制下落
+		this.downTime = 0;
+		// this.diedState = false;
 		// 动画标识
-		this.isAnimate = false;
+		// this.isAnimate = false;
 		// 暂停
 		this.stop = null;
 		// 更新时间
@@ -25,23 +30,19 @@ export default class Control {
 		// 控制下落速度
 		this.speed = 100;
 		this.currentLevel = 100;
-		this.time = 0;
 	}
 
-	// 一个个取值太麻烦了  ， 合并为一个对象
+	setStoreData(payload) {
+		if (isObject(payload)) return;
+		reducers.block.setStore(payload);
+	}
+
 	getStoreData() {
 		const storeData = store.getState();
-		let data = {};
-		Object.keys(storeData).forEach(key => {
-			data = {
-				...data,
-				...storeData[key]
-			};
-		});
-		return data;
+		return storeData.block;
 	}
 
-	start = () => {
+	start() {
 		const { common } = this.getStoreData();
 		if (common.status === Running) return;
 		const startTime =
@@ -49,17 +50,169 @@ export default class Control {
 		reducers.common.setData({
 			startTime
 		});
-		let { autoDown } = this;
-		return engine(autoDown);
+		this.stop = engine(this.running.bind(this));
+		return this.stop;
+	}
+
+	running() {
+		const { isAnimation } = this.getStoreData();
+		if (isAnimation) return;
+		// 下落
+		this.down();
+		// 设置时间
+		this.setTime();
+	}
+
+	down = () => {
+		const store = this.getStoreData();
+		this.downTime++;
+		if (LevelList[store.level] < this.downTime) return;
+		this.downTime = 0;
+		if (this.isGameOver()) {
+			this.gameOverHandle();
+			return;
+		}
+		// 判断是否能下落
+		if (!this.canDown()) {
+			// 不能下落就合并到 map
+			this.merge();
+			return;
+		}
+		// 能就 下落一格
+		this.setStoreData({
+			blockCoord: [store.blockCoord[0], store.blockCoord[1] + 1]
+		});
 	};
 
-	state = {
-		// 1  PC  0 移动
-		isPC: 1
+	isGameOver() {
+		const { blockInfo, blockCoord } = this.getStoreData();
+		const [left, top] = blockCoord;
+		const { t, b, len } = blockInfo;
+		return top + t <= 0;
+	}
+
+	async gameOverHandle() {
+		this.stop && this.stop();
+		await this.gameOverAnimate();
+
+		this.setStoreData({
+			map: createMap()
+		});
+	}
+
+	// 死亡动画
+	gameOverAnimate = () => {
+		const { map } = this.getStoreData();
+		// CompleteList,
+		// PlainList,
+		let timerId;
+		let index = cHeight - 1;
+		return new Promise(resolve => {
+			timerId = setInterval(() => {
+				map[index] = CompleteList;
+				this.setStoreData({
+					map: [...map]
+				});
+				index--;
+				if (index < 0) {
+					clearInterval(timerId);
+					index = 0;
+					timerId = setInterval(() => {
+						map[index] = PlainList;
+						this.setStoreData({
+							map: [...map]
+						});
+						index++;
+						if (index >= cHeight) {
+							clearInterval(timerId);
+							resolve();
+						}
+					}, 40);
+				}
+			}, 40);
+		});
 	};
+
+	canDown() {
+		const { block, blockInfo, blockCoord, map } = this.getStoreData();
+		const { t, b, l, r, len, h } = blockInfo;
+		let [left, top] = blockCoord;
+		// 是否到底部
+		if (top + h - l >= cHeight) return false;
+
+		// 将当前 坐标高度 + 1 ； 看是否有与其他项重合， 有则不能下落； 无即可下落
+		top += 1;
+		// x： 横坐标； y： 纵坐标；
+		// top + t  缩小循环范围 ；
+		for (let y = top + t; y <= top + h - b; y++) {
+			for (let x = left + l; x <= left + len - r; x++) {
+				if (map[y][x] === 1 && block[y - top][x - left] === 1) return false;
+			}
+		}
+		return true;
+	}
+
+	async merge() {
+		let {
+			block,
+			blockInfo,
+			blockCoord,
+			map,
+			nextBlock,
+			score,
+			complateIndexList
+		} = this.getStoreData();
+		const { t, b, l, r, len, h } = blockInfo;
+		let [left, top] = blockCoord;
+		// x： 横坐标； y： 纵坐标；
+		// top + t  缩小循环范围 ；
+		for (let y = top + t; y <= top + h - b; y++) {
+			for (let x = left + l; x <= left + len - r; x++) {
+				map[y][x] = block[y - top][x - left];
+			}
+		}
+		// 获取完成项的索引列表
+		const indexList = this.getComplateIndexList(map);
+		if (!isEmpty(indexList)) {
+			// 加分
+			score += ScoreList[indexList.length];
+
+			this.setStoreData({
+				complateIndexList: indexList,
+				isAnimation: true
+			});
+			// 动画动作 预计 900ms
+			await new Promise(resolve => {
+				setTimeout(resolve, 900);
+			});
+			// 移除 已完成的项
+			indexList.forEach(index => {
+				map[index] = PlainList;
+			});
+		}
+
+		this.setStoreData({
+			...nextBlock,
+			map: cloneDeep(map),
+			nextBlock: getNewBlock(),
+			score,
+			isAnimation: false,
+			complateIndexList
+		});
+	}
+
+	getComplateIndexList(map) {
+		const indexList = [];
+		forEach(map, (item, key) => {
+			if (!includes(item, 0)) {
+				indexList.push(key);
+			}
+		});
+		return indexList;
+	}
 
 	// 碰撞检测函数
-	handleCollide = map => {
+	handleCollide(map) {
 		let { currentMap, controlNextAction, setAction } = this.props;
 		this.speed = this.currentLevel;
 		currentMap.autoDown = false;
@@ -78,9 +231,9 @@ export default class Control {
 
 		setAction(map);
 		controlNextAction();
-	};
+	}
 	// 完结动画
-	gameOver = () => {
+	gameOver() {
 		const { controlStartAction, maskAction } = this.props;
 		if (this.diedState) return;
 		this.isAnimate = true;
@@ -91,9 +244,9 @@ export default class Control {
 			maskAction(true);
 			controlStartAction();
 		});
-	};
+	}
 	// 检测是否有已完成的
-	isComplete = map => {
+	isComplete(map) {
 		let arr = [];
 		for (let i = 0; i < map.length; i++) {
 			if (!map[i].includes(0)) {
@@ -101,7 +254,7 @@ export default class Control {
 			}
 		}
 		if (arr.length) return arr;
-	};
+	}
 	// 是否GG
 	isGameOver = () => {
 		let { currentMap } = this.props;
@@ -296,23 +449,6 @@ export default class Control {
 		this.down();
 	};
 
-	down = () => {
-		this.time = 0;
-		let { currentMap, controlChangeAction, nextMap } = this.props;
-		let { index, site, seat, autoDown } = currentMap;
-		if (!autoDown) return;
-		let { info } = site[index];
-		let top = seat[1];
-		let bottom = info.b || 0;
-		if (top - Number(bottom) < 19) {
-			controlChangeAction({
-				seat: [seat[0], top + 1]
-			});
-		} else {
-			this.handleCollide(nextMap.map);
-		}
-	};
-
 	// 提升等级
 	updateLevel = next => {
 		var { levelAction, contorllevel, contorltime } = next;
@@ -393,3 +529,5 @@ export default class Control {
 		this.props.restartAction();
 	};
 }
+
+export default new Control();

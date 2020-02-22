@@ -25,8 +25,7 @@ const getTimeCom = time => {
 // 01234567890；10-灰色8；11-灰色：; 12-：;
 
 const Right = props => {
-	let { score, time, level, currentMap } = props;
-	const next = currentMap.next;
+	let { score, time, level, next } = props;
 	return (
 		<div className={styles["right"]}>
 			<div>

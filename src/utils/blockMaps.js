@@ -2,12 +2,12 @@ import { get } from "lodash";
 
 /*
  * map
- * 0 为空
- * 1 为移动块显示的小方块
+ * 	0 为空
+ * 	1 为移动块显示的小方块
  *
- * 二维数组为 当前移动块可变换的最小所需空间
- */
-/*
+ * 	二维数组为 当前移动块可变换的最小所需空间
+ *
+ *
  * info 详情
  *   h 二维数组高度
  *   len 二维数组长度
@@ -297,4 +297,20 @@ Object.keys(blockMaps).forEach(key => {
 	});
 });
 
-export default blockMaps;
+const mapsKeys = Object.keys(blockMaps);
+
+const getNewBlock = function() {
+	const i = Math.floor(Math.random() * mapsKeys.length);
+	const blockSite = blockMaps[mapsKeys[i]];
+	const { b, l, h } = blockSite[0].info;
+	return {
+		blockIndex: 0,
+		block: blockSite[0].map,
+		blockInfo: blockSite[0].info,
+		// 表示初始化默认显示最底部一行：1 - (h - b)
+		blockCoord: [4 - l, 1 - (h - b)],
+		blockSite
+	};
+};
+
+export default getNewBlock;

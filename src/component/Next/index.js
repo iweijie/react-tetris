@@ -1,13 +1,13 @@
-import React from "react";
+import React, { memo } from "react";
 import styles from "./index.module.scss";
 import { slice, isEmpty, map } from "lodash";
 
 const NextCom = ({ next }) => {
 	if (isEmpty(next)) return null;
-	let { index, site } = next;
-	let { info } = site[index];
+	let { blockIndex, blockSite } = next;
+	let { info } = blockSite[blockIndex];
 	const { b = 0, t = 0, len } = info;
-	const list = slice(site[index].map, t, len - b);
+	const list = slice(blockSite[blockIndex].map, t, len - b);
 	return (
 		<div className={styles["next"]}>
 			{map(list, (item, index) => {
@@ -26,4 +26,4 @@ const NextCom = ({ next }) => {
 	);
 };
 
-export default NextCom;
+export default memo(NextCom);

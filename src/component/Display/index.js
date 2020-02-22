@@ -6,7 +6,17 @@ import Mask from "../Mask";
 import Wrap from "../Wrap";
 
 const Display = props => {
-	const { map, currentMap, isMask, score, time, level, block, coord } = props;
+	const {
+		map,
+		currentMap,
+		isMask,
+		score,
+		time,
+		level,
+		block,
+		coord,
+		next
+	} = props;
 
 	return (
 		<div className="_1fjB">
@@ -19,7 +29,7 @@ const Display = props => {
 						time={time}
 						score={score}
 						level={level}
-						currentMap={currentMap}
+						next={next}
 					/>
 				</div>
 			</div>
