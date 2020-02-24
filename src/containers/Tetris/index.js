@@ -11,32 +11,48 @@ class App extends Component {
 		this.control = control;
 	}
 	componentDidMount() {
-		// window.addEventListener(
-		// 	"keydown",
-		// 	this.decoratorHandle(this.keydownHandle)
-		// );
-		// window.addEventListener("keyup", this.keyupHandle);
-		// var { controlStartAction, contorllevel } = this.props;
-		// this.speed = this.currentLevel = this.levelMap[contorllevel];
-		// controlStartAction();
-		// if (!this.isDeviceTypePc()) {
-		// 	this.setState({
-		// 		isPC: 0
-		// 	});
-		// }
+		window.addEventListener("keydown", this.keydownhandle);
+		window.addEventListener("keyup", this.keyuphandle);
+		// this.control.start();
 	}
-	componentWillReceiveProps(next) {
-		// if (next.contorllevel !== this.props.contorllevel) {
-		// 	this.speed = this.currentLevel = this.levelMap[next.contorllevel];
-		// }
-	}
-	componentDidUpdate() {
-		// this.updateTime = 0;
-		// var { collide, map } = this.props.nextMap;
-		// if (collide) {
-		// 	this.handleCollide(map);
-		// }
-	}
+
+	// 分发事件函数
+	keydownhandle = e => {
+		const { isAnimation } = this.props;
+		if (isAnimation) return;
+		switch (e.keyCode) {
+			case 32:
+				// this.control.fastDown();
+				this.control.down()
+				return;
+			case 37:
+				return this.control.move(0);
+			case 39:
+				return this.control.move(1);
+			case 38:
+				return this.control.transform();
+			case 40:
+				// this.control.fastDown();
+				this.control.down()
+				return;
+			default:
+				return;
+		}
+	};
+
+	// 分发事件函数
+	keyuphandle = e => {
+		switch (e.keyCode) {
+			case 32:
+				this.control.cancelFastDown();
+				return;
+			case 40:
+				this.control.cancelFastDown();
+				return;
+			default:
+				return;
+		}
+	};
 
 	render() {
 		console.log(this.props);
@@ -49,6 +65,7 @@ class App extends Component {
 			startTime,
 			time,
 			blockIndex,
+			completeIndexList,
 			block,
 			nextBlock,
 			blockSite,
@@ -82,6 +99,7 @@ class App extends Component {
 					block={block}
 					coord={blockCoord}
 					next={nextBlock}
+					completeIndexList={completeIndexList}
 				/>
 				<Hand
 				// down={down}

@@ -2,13 +2,24 @@
 	border: 2px solid #000;
 	padding: 3px 1px 1px 3px;
 	width: 228px;
-	overflow: hidden;
 }
 .diamonds-wrap {
 	position: relative;
+	overflow: hidden;
 	p {
 		width: 220px;
 		height: 22px;
+	}
+
+	.completed {
+		b {
+			animation: borderAnimt 0.3s 3;
+			border-color: #560000;
+		}
+		b:after {
+			animation: bgcAnimt 0.3s 3;
+			background: #560000;
+		}
 	}
 
 	.block {
@@ -19,9 +30,6 @@
 	}
 	.block-item {
 		height: 22px;
-		:global(.c) {
-			border-color: red;
-		}
 	}
 	.block-chunk {
 		display: block;
@@ -35,5 +43,29 @@
 		&::after {
 			display: none;
 		}
+	}
+
+}
+
+@keyframes bgcAnimt {
+	0% {
+		background: #560000;
+	}
+	50% {
+		background: #879372;
+	}
+	0% {
+		background: #560000;
+	}
+}
+@keyframes borderAnimt {
+	0% {
+		border-color: #560000;
+	}
+	50% {
+		border-color: #879372;
+	}
+	0% {
+		border-color: #560000;
 	}
 }

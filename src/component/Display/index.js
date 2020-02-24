@@ -15,7 +15,8 @@ const Display = props => {
 		level,
 		block,
 		coord,
-		next
+		next,
+		completeIndexList
 	} = props;
 
 	return (
@@ -23,14 +24,14 @@ const Display = props => {
 			<Wrap />
 			<div className="_2iZA">
 				<div className="_2lJh">
-					<Diamonds map={map} block={block} coord={coord} />
-					<Mask show={isMask} />
-					<Right
-						time={time}
-						score={score}
-						level={level}
-						next={next}
+					<Diamonds
+						completeIndexList={completeIndexList}
+						map={map}
+						block={block}
+						coord={coord}
 					/>
+					<Mask show={isMask} />
+					<Right time={time} score={score} level={level} next={next} />
 				</div>
 			</div>
 		</div>

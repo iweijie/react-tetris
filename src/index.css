@@ -80,15 +80,14 @@ body {
 .wrap b.c:after {
 	background: #000;
 }
-.wrap b.d {
+/* .wrap b.d {
 	animation: borderAnimt 0.3s 3;
-	/* animation-iteration-count:3; */
 	border-color: #560000;
 }
 .wrap b.d:after {
 	animation: bgcAnimt 0.3s 3;
 	background: #560000;
-}
+} */
 @keyframes bgcAnimt {
 	0% {
 		background: #560000;

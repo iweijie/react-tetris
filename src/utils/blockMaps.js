@@ -270,7 +270,8 @@ const sanMap = [
 		],
 		info: {
 			r: 1,
-			len: 3
+			len: 3,
+			h: 3,
 		}
 	}
 ];

@@ -6,7 +6,7 @@ export default {
 	namespace: "block",
 	state: {
 		//运行状态： init:0; running:1;  stop:2;
-		status: 0,
+		status: 2,
 		// 等级
 		level: 1,
 		// 历史最高分，init 状态显示
@@ -16,7 +16,7 @@ export default {
 		// 地图
 		map: createMap(),
 		// 完成索引
-		complateIndexList: [],
+		completeIndexList: [],
 		startTime: 0,
 		time: 0,
 		// 动画进行中的一个标识，
@@ -33,11 +33,13 @@ export default {
 		blockCoord: [],
 		// blockMaps 的 某一项引用
 		blockSite: {},
-		...getNewBlock()
+		...getNewBlock(),
+		// blockCoord: [4,2],
+		
 	},
 	reducers: {
 		setStore({ state, rootState }, payload) {
-			if (isObject(payload)) return state;
+			if (!isObject(payload)) return state;
 			return {
 				...state,
 				...payload
@@ -45,7 +47,7 @@ export default {
 		}
 	},
 	effects: {
-		// async complateAimation({ call, put, state, rootState }, complateIndexList) {
+		// async completeAimation({ call, put, state, rootState }, completeIndexList) {
 		// 	const {map} = state;
 		// 	const clone = cloneDeep(map)
 		// 	call('block/setStore',{
