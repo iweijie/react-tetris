@@ -1,4 +1,4 @@
-import { bindActionCreators } from 'redux';
-import actions from 'actions'
+import { bindActionCreators } from "redux";
+import actions from "actions";
 
-export default dispatch => bindActionCreators(actions, dispatch) 
+export default (dispatch) => bindActionCreators(actions, dispatch);
