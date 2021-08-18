@@ -6,10 +6,13 @@ import Control from "../page/control/index"
 import { connect } from 'react-redux';
 import dispatchAction from "../util/dispatchAction"
 import { isEmpty } from 'lodash'
+
 class App extends Component {
     state = {
         // 1  PC  0 移动
-        isPC: 1
+        isPC: 1,
+        style : { paddingTop: "101px", paddingBottom: "59px", marginTop: "-569px", transform: 'scale(0.8)' }
+
     }
     diedState = false;
     redArr = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
@@ -29,7 +32,7 @@ class App extends Component {
     speed = 100;
     currentLevel = 100;
     time = 0
-
+    
     // 碰撞检测函数
     handleCollide = (map) => {
         let { currentMap, controlNextAction, setAction } = this.props;
@@ -302,7 +305,8 @@ class App extends Component {
         controlStartAction()
         if (!this.isDeviceTypePc()) {
             this.setState({
-                isPC: 0
+                isPC: 0,
+                style: { ...this.state.style, transform: 'scale(1)' }
             })
         }
     }
@@ -359,7 +363,6 @@ class App extends Component {
         this.props.restartAction()
     }
     render() {
-        const { isPC } = this.state
         let { stop, translation, down, transform, decoratorHandle, selfStarting, gameOver } = this;
         let { currentMap, nextMap, contorlMask, contorlscore, contorltime, contorllevel } = this.props;
         let time;
@@ -368,9 +371,8 @@ class App extends Component {
         } else {
             time = 0
         }
-        const scale = isPC ? 0.8 : 1
         return (
-            <div className="wrap" style={{ transform: `scale(${scale})`, paddingTop: "101px", paddingBottom: "59px", marginTop: "-569px" }}>
+            <div className="wrap" style={this.state.style}>
                 <Tetris time={time} level={contorllevel} score={contorlscore} isMask={contorlMask} currentMap={currentMap} map={nextMap.map} />
                 <Control
                     down={down}
