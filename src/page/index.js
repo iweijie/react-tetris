@@ -302,11 +302,11 @@ class App extends Component {
     );
   };
   componentDidMount() {
-    window.addEventListener(
+    document.addEventListener(
       "keydown",
       this.decoratorHandle(this.keydownHandle)
     );
-    window.addEventListener("keyup", this.keyupHandle);
+    document.addEventListener("keyup", this.keyupHandle);
     var { controlStartAction, contorllevel } = this.props;
     this.speed = this.currentLevel = this.levelMap[contorllevel];
     controlStartAction();
@@ -364,6 +364,7 @@ class App extends Component {
         return;
     }
   };
+
   reStart = () => {
     this.props.restartAction();
   };
@@ -402,6 +403,7 @@ class App extends Component {
           map={nextMap.map}
         />
         <Control
+          currentMap={currentMap}
           down={down}
           stop={stop}
           start={selfStarting}

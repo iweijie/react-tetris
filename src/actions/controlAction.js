@@ -8,6 +8,7 @@ export const reset = "control-reset";
 export const level = "control-level";
 export const time = "control-time";
 
+let uuid = 1
 const mapsKeys = Object.keys(maps)
 const getNewMap = function () {
     var i = Math.floor(Math.random() * mapsKeys.length)
@@ -18,6 +19,7 @@ const getNewMap = function () {
         autoDown: true,
         index: 0,
         next: null,
+        uuid: uuid++,
         seat,
         site
     }

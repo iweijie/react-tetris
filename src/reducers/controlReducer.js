@@ -8,6 +8,7 @@ import {
   level,
   time,
 } from "../actions/controlAction";
+
 function currentMap(state = {}, action) {
   switch (action.type) {
     case start:
