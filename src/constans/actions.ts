@@ -22,4 +22,11 @@ export enum ControlActionType {
   RIGHT = "right-shift",
 }
 
-export enum SagaActionType {}
+export enum SagaActionType {
+  CHANG = "change",
+  NEXT = "next",
+  MASK = "mask",
+  SCORE = "score",
+  LEVEL = "level",
+  TIME = "time",
+}
