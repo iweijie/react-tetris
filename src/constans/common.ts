@@ -1,0 +1,15 @@
+export const classMap = [
+  "bg _2hru",
+  "bg _2B-l",
+  "bg ShGQ",
+  "bg _2V1K",
+  "bg _3bYF",
+  "bg _1Z7B",
+  "bg _1-BZ",
+  "bg _3_id",
+  "bg _3_Z_",
+  "bg bNJM",
+  "bg _2kln",
+  "bg hOfM",
+  "bg _2tuY",
+];
