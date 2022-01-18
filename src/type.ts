@@ -31,7 +31,15 @@ export type NextBlockMapInfoType = {
   site: BlockType[];
 };
 
-export type ActionType<T> = {
-  type: string;
+export type ActionType<T, K = string> = {
+  type: K;
   payload: T;
+};
+
+export type StoreState = {
+  map: MapType;
+};
+
+export type CreateReducerHandleType = {
+  [k: string]: () => void;
 };

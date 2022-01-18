@@ -29,4 +29,6 @@ export enum SagaActionType {
   SCORE = "score",
   LEVEL = "level",
   TIME = "time",
+
+  setInfo = "setInfo",
 }

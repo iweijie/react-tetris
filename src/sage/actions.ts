@@ -15,6 +15,19 @@ import { ActionType } from "../type";
 // export const level = "control-level";
 // export const time = "control-time";
 
+const setAction = (payload) => {
+  return {
+    type: setInfo,
+    payload,
+  };
+};
+
+const restartAction = (payload) => {
+  return {
+    type: restart,
+  };
+};
+
 const controlStartAction = () => {
   const payload = getNextBlockMapInfo();
   payload.next = getNextBlockMapInfo();
