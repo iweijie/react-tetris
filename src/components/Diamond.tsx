@@ -1,5 +1,6 @@
 import { FC } from "react";
 import { map } from "lodash";
+import { connect } from "react-redux";
 
 import { MapType } from "../type";
 
@@ -16,5 +17,9 @@ const Diamond: FC<{ map: MapType }> = ({ map: list }) => {
     </div>
   );
 };
-
-export default Diamond;
+const mapState = (store) => {
+  return {
+    map: store.map,
+  };
+};
+export default connect(mapState)(Diamond);
