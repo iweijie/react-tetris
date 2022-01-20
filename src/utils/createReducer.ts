@@ -1,5 +1,5 @@
 import produce, { Draft } from "immer";
-import { ActionType } from "../type";
+import { ActionType, ObjectKeyType } from "../type";
 
 // type Handlers<
 //   State,
@@ -29,28 +29,31 @@ import { ActionType } from "../type";
 //       ? handlers[action.type as Types](state, action)
 //       : state;
 
-const createReducer = <
-  State,
-  T extends { [k: string]: any },
-  K extends keyof T
->(
+// T extends { [k: string]: any },
+// K extends keyof T
+
+type HandleType<S> = (
+  draft: Draft<S>,
+  action: ActionType<Partial<S>, ObjectKeyType>,
+  state: S
+) => void | S;
+
+type OBjectHandleTypes<S> = {
+  [k: string]: HandleType<S>;
+};
+
+const createReducer = <State>(
   initialState: State,
-  handlers: {
-    [k: string]: (
-      draft: Draft<State>,
-      action: ActionType<Partial<State>, K>,
-      state: State
-    ) => void;
-  }
+  handlers: OBjectHandleTypes<State>
 ) => {
   const KEYS = Object.keys(handlers);
   return (
     state: State = initialState,
-    action: ActionType<Partial<State>, K>
+    action: ActionType<Partial<State>, keyof OBjectHandleTypes<State>>
   ): State =>
     produce(state, (draft) => {
       if (KEYS.indexOf(action.type as string) !== -1) {
-        handlers[action.type as string](draft, action, state);
+        handlers[action.type](draft, action, state);
       }
     });
 };

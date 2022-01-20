@@ -71,7 +71,7 @@ const App = () => {
   );
 };
 
-const mapStateToProps = (store, ownProps) => {
+const mapStateToProps = (store: RootStore, ownProps) => {
   return {};
   return {
     nextMap: nextMap(store),

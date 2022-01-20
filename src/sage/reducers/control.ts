@@ -22,7 +22,9 @@ export default createReducer(
     time: 0,
   },
   {
-    [GameActionType.START]: function (dea, action, state) {},
+    [GameActionType.START]: function (dea, action, state) {
+      return state;
+    },
   }
 );
 

@@ -1,10 +1,10 @@
 import { combineReducers } from "redux";
 // import map from "./map";
-import constrol from "./constrol";
+import control from "./control";
 
 const rootReducer = combineReducers({
   // map,
-  constrol,
+  control,
 });
 
 export default rootReducer;

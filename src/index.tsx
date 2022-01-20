@@ -20,11 +20,7 @@ const middleware = [sagaMiddleware];
 //   middleware.push(logger);
 // }
 
-const store = createStore(
-  reducer,
-  getInitialValue(),
-  applyMiddleware(...middleware)
-);
+const store = createStore(reducer, applyMiddleware(...middleware));
 
 sagaMiddleware.run(saga);
 

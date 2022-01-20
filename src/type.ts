@@ -30,8 +30,9 @@ export type NextBlockMapInfoType = {
   seat: number[];
   site: BlockType[];
 };
+export type ObjectKeyType = string | symbol | number;
 
-export type ActionType<T, K = string> = {
+export type ActionType<T, K extends ObjectKeyType> = {
   type: K;
   payload: T;
 };
