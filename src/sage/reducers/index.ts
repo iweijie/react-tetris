@@ -1,9 +1,9 @@
 import { combineReducers } from "redux";
-// import map from "./map";
+import map from "./map";
 import control from "./control";
 
 const rootReducer = combineReducers({
-  // map,
+  map,
   control,
 });
 

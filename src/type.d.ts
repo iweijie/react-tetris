@@ -32,15 +32,7 @@ export type NextBlockMapInfoType = {
 };
 export type ObjectKeyType = string | symbol | number;
 
-export type ActionType<T, K extends ObjectKeyType> = {
+export type ActionType<K extends ObjectKeyType, T = any> = {
   type: K;
   payload: T;
-};
-
-export type StoreState = {
-  map: MapType;
-};
-
-export type CreateReducerHandleType = {
-  [k: string]: () => void;
 };

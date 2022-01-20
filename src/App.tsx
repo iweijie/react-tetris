@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { nextMap } from "./select";
 import Tetris from "./components/Tetris";
 import Control from "./components/Control";
 import "./index.css";
@@ -71,16 +72,15 @@ const App = () => {
   );
 };
 
-const mapStateToProps = (store: RootStore, ownProps) => {
-  return {};
+const mapStateToProps = (store: RootStore, ownProps: any) => {
   return {
     nextMap: nextMap(store),
     map: store.map,
-    contorlMask: store.contorlMask,
-    currentMap: store.currentMap,
-    contorlscore: store.contorlscore,
-    contorllevel: store.contorllevel,
-    contorltime: store.contorltime,
+    contorlMask: store.control.contorlMask,
+    currentMap: store.control.currentMap,
+    contorlscore: store.control.contorlscore,
+    contorllevel: store.control.contorllevel,
+    contorltime: store.control.contorltime,
     ...ownProps,
   };
 };

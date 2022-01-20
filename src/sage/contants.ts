@@ -22,6 +22,16 @@ export enum ControlActionType {
   RIGHT = "right-shift",
 }
 
-export enum SagaActionType {
+export enum SagaActionType {}
 
-}
+export const setInfo: string = "setInfo";
+export const setOldInfo: string = "setOldInfo";
+export const restart: string = "restart";
+export const start: string = "control-start";
+export const change: string = "control-change";
+export const next: string = "control-next";
+export const mask: string = "control-mask";
+export const score: string = "control-score";
+export const reset: string = "control-reset";
+export const level: string = "control-level";
+export const time: string = "control-time";

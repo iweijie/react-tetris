@@ -5,7 +5,6 @@ import { Provider } from "react-redux";
 import createSagaMiddleware from "redux-saga";
 // import { createLogger } from "redux-logger";
 import reducer from "./sage/reducers/index";
-import getInitialValue from "./sage/getInitialValue";
 import saga from "./sage/saga";
 
 import App from "./App";

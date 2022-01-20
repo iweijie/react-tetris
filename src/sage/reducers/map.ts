@@ -1,20 +1,39 @@
-import { setInfo, restart } from "../actions";
+import { MapType } from "../../type";
+import { setInfo, restart } from "../contants";
 
-import { GameActionType } from "../contants";
+// import { GameActionType } from "../contants";
 import createReducer from "../../utils/createReducer";
-
 // 0 ： 无 ；  1 ： 有 ；2 ： 即将消失
+export const creatMap = (): MapType => {
+  return [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ];
+};
 
-// function map(state = creatMap(), action) {
-//   switch (action.type) {
-//     case setInfo:
-//       return action.payload;
-//     case restart:
-//       return creatMap();
-//     default:
-//       return state;
-//   }
-// }
-// export default {
-//   map,
-// };
+export default createReducer<MapType>(creatMap(), {
+  [setInfo]: function (draft, action, state) {
+    return action.payload as MapType;
+  },
+  [restart]: function () {
+    return creatMap();
+  },
+});

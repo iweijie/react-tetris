@@ -5,7 +5,18 @@ import {
   ControlActionType,
 } from "../constans/actions";
 import { ActionType } from "../type";
-
+import {
+  restart,
+  setInfo,
+  start,
+  change,
+  next,
+  mask,
+  score,
+  reset,
+  level,
+  time,
+} from "./contants";
 // export const start = "control-start";
 // export const change = "control-change";
 // export const next = "control-next";
@@ -15,24 +26,82 @@ import { ActionType } from "../type";
 // export const level = "control-level";
 // export const time = "control-time";
 
-const setAction = (payload) => {
-  return {
-    type: setInfo,
-    payload,
-  };
-};
+// const setAction = (payload) => {
+//   return {
+//     type: setInfo,
+//     payload,
+//   };
+// };
 
-const restartAction = (payload) => {
-  return {
-    type: restart,
-  };
-};
+// const restartAction = () => {
+//   return {
+//     type: restart,
+//   };
+// };
+
+// const controlStartAction = () => {
+//   const payload = getNextBlockMapInfo();
+//   payload.next = getNextBlockMapInfo();
+//   return {
+//     type: GameActionType.START,
+//     payload,
+//   };
+// };
+
+// //   Action
+// const controlChangeAction = (payload: any) => {
+//   return {
+//     type: SagaActionType.CHANG,
+//     payload,
+//   };
+// };
+// // 方块  Action
+// const controlNextAction = () => {
+//   return {
+//     type: SagaActionType.NEXT,
+//     payload: getNextBlockMapInfo(),
+//   };
+// };
+// // 遮罩  Action
+// const maskAction = (payload: boolean) => {
+//   return {
+//     type: SagaActionType.MASK,
+//     payload: payload,
+//   };
+// };
+// // 分数  Action
+// const scoreAction = (payload: number) => {
+//   return {
+//     type: SagaActionType.SCORE,
+//     payload,
+//   };
+// };
+// // 重置  Action
+// const resetAction = () => {
+//   return {
+//     type: GameActionType.RESTART,
+//   };
+// };
+// // 难度  Action
+// const levelAction = (payload: number) => {
+//   return {
+//     type: SagaActionType.LEVEL,
+//     payload,
+//   };
+// };
+// // 时长  Action
+// const changeTimeAction = (payload: number) => {
+//   return {
+//     type: SagaActionType.TIME,
+//     payload,
+//   };
+// };
 
 const controlStartAction = () => {
-  const payload = getNextBlockMapInfo();
+  var payload = getNextBlockMapInfo();
   payload.next = getNextBlockMapInfo();
   return {
-    type: GameActionType.START,
+    type: start,
     payload,
   };
 };
@@ -40,51 +109,53 @@ const controlStartAction = () => {
 //   Action
 const controlChangeAction = (payload: any) => {
   return {
-    type: SagaActionType.CHANG,
+    type: change,
     payload,
   };
 };
+
 // 方块  Action
 const controlNextAction = () => {
   return {
-    type: SagaActionType.NEXT,
+    type: next,
     payload: getNextBlockMapInfo(),
   };
 };
 // 遮罩  Action
 const maskAction = (payload: boolean) => {
   return {
-    type: SagaActionType.MASK,
-    payload: payload,
+    type: mask,
+    payload,
   };
 };
 // 分数  Action
 const scoreAction = (payload: number) => {
   return {
-    type: SagaActionType.SCORE,
-    payload,
+    type: score,
+    payload: payload,
   };
 };
 // 重置  Action
 const resetAction = () => {
   return {
-    type: GameActionType.RESTART,
+    type: reset,
   };
 };
 // 难度  Action
 const levelAction = (payload: number) => {
   return {
-    type: SagaActionType.LEVEL,
+    type: level,
     payload,
   };
 };
 // 时长  Action
 const changeTimeAction = (payload: number) => {
   return {
-    type: SagaActionType.TIME,
+    type: time,
     payload,
   };
 };
+
 const actions = {
   controlStartAction,
   controlChangeAction,

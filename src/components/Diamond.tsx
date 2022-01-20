@@ -17,7 +17,7 @@ const Diamond: FC<{ map: MapType }> = ({ map: list }) => {
     </div>
   );
 };
-const mapState = (store) => {
+const mapState = (store: RootStore) => {
   return {
     map: store.map,
   };

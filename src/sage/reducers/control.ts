@@ -1,30 +1,128 @@
-// import {
-//   start,
-//   change,
-//   next,
-//   mask,
-//   score,
-//   reset,
-//   level,
-//   time,
-// } from "../actions/controlAction";
-import { GameActionType } from "../contants";
+import {
+  start,
+  change,
+  next,
+  mask,
+  score,
+  reset,
+  level,
+  time,
+} from "../contants";
+// import { GameActionType } from "../contants";
 import createReducer from "../../utils/createReducer";
 
 export default createReducer(
   {
-    // contorlMask
-    Mask: true,
-    // currentMap
-    currentMap: {},
-    score: 0,
-    level: 1,
-    time: 0,
+    nextMap: {
+      map: [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 1, 1, 1, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
+      ],
+      isTransform: true,
+      collide: false,
+      isTranslationLeft: true,
+      isTranslationRight: true,
+    },
+    contorlMask: false,
+    currentMap: {
+      autoDown: true,
+      index: 0,
+      next: {
+        autoDown: true,
+        index: 0,
+        next: null,
+        uuid: 3,
+        seat: [4, 2],
+        site: [
+          {
+            map: [
+              [0, 0, 0, 0],
+              [1, 1, 1, 1],
+              [0, 0, 0, 0],
+              [0, 0, 0, 0],
+            ],
+            info: {
+              h: 4,
+              t: 1,
+              b: 2,
+              len: 4,
+            },
+          },
+          {
+            map: [
+              [0, 1, 0, 0],
+              [0, 1, 0, 0],
+              [0, 1, 0, 0],
+              [0, 1, 0, 0],
+            ],
+            info: {
+              h: 4,
+              l: 1,
+              r: 2,
+              len: 4,
+            },
+          },
+        ],
+      },
+      uuid: 2,
+      seat: [3, 3],
+      site: [
+        {
+          map: [
+            [0, 0, 0, 0],
+            [1, 1, 1, 1],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+          ],
+          info: {
+            h: 4,
+            t: 1,
+            b: 2,
+            len: 4,
+          },
+        },
+        {
+          map: [
+            [0, 1, 0, 0],
+            [0, 1, 0, 0],
+            [0, 1, 0, 0],
+            [0, 1, 0, 0],
+          ],
+          info: {
+            h: 4,
+            l: 1,
+            r: 2,
+            len: 4,
+          },
+        },
+      ],
+    },
+    contorlscore: 0,
+    contorllevel: 1,
+    contorltime: 1642520016076,
   },
   {
-    [GameActionType.START]: function (dea, action, state) {
-      return state;
-    },
+    // [GameActionType.START]: function (dea, action, state) {
+    //   return state;
+    // },
   }
 );
 
