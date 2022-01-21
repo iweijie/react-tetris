@@ -97,6 +97,19 @@ import {
 //   };
 // };
 
+const setAction = (payload: any) => {
+  return {
+    type: setInfo,
+    payload,
+  };
+};
+
+const restartAction = () => {
+  return {
+    type: restart,
+  };
+};
+
 const controlStartAction = () => {
   var payload = getNextBlockMapInfo();
   payload.next = getNextBlockMapInfo();
@@ -165,6 +178,8 @@ const actions = {
   resetAction,
   levelAction,
   changeTimeAction,
+  setAction,
+  restartAction,
 };
 
 export default actions;

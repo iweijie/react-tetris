@@ -36,3 +36,5 @@ export type ActionType<K extends ObjectKeyType, T = any> = {
   type: K;
   payload: T;
 };
+
+export type Timer = ReturnType<typeof window.setTimeout>;
