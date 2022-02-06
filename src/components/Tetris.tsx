@@ -1,8 +1,8 @@
 import { FC } from "react";
 import Wrap from "./Wrap";
 import Diamond from "./Diamond";
-import Right from "./right11";
-import Mask from "./mask22";
+import Right from "./Right";
+import Mask from "./Mask";
 
 const App = (props: any) => {
   const { map, currentMap, isMask, score, time, level } = props;

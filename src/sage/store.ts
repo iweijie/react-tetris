@@ -1,4 +1,4 @@
-import { createStore, applyMiddleware } from "redux";
+import { createStore, applyMiddleware, Dispatch } from "redux";
 import createSagaMiddleware from "redux-saga";
 import { createLogger } from "redux-logger";
 import reducer from "./reducers/index";
@@ -18,6 +18,9 @@ middleware.push(sagaMiddleware);
 const store = createStore(reducer, applyMiddleware(...middleware));
 
 export type RootStore = ReturnType<typeof store.getState>;
-export type Dispatch = typeof store.dispatch;
-
+// export type Dispatch = typeof store.dispatch;
+export type CDispatch = Dispatch<{
+  type: string;
+  payload?: any;
+}>;
 export default store;

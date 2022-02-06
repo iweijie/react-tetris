@@ -38,3 +38,11 @@ export type ActionType<K extends ObjectKeyType, T = any> = {
 };
 
 export type Timer = ReturnType<typeof window.setTimeout>;
+
+export type mergeType<T extends Object, U extends Object> = {
+  [key in keyof T | keyof U]: key extends keyof T
+    ? T[key]
+    : key extends keyof U
+    ? U[key]
+    : never;
+};

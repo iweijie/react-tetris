@@ -181,5 +181,6 @@ const actions = {
   setAction,
   restartAction,
 };
+export type ActionsType = typeof actions;
 
-export default actions;
+export default actions; 

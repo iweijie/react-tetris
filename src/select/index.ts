@@ -9,7 +9,7 @@ const currentMap = (state: RootStore) => state.map;
 
 const currentGrid = (state: RootStore) => state.control.currentMap;
 
-const currentMask = (state: RootStore) => state.control.contorlMask;
+const currentMask = (state: RootStore) => state.control.controlMask;
 
 type ReturnCurrentGridType = ReturnType<typeof currentGrid>;
 
@@ -49,12 +49,20 @@ const isTranslation = (
   };
 };
 
+type MixMapType = {
+  map: MapType;
+  isTransform: boolean;
+  collide: boolean;
+  isTranslationLeft: boolean;
+  isTranslationRight: boolean;
+};
+
 //  混合当前移动块 到 Map 中
 const mixMap = (
   map: MapType,
   currentMap: ReturnCurrentGridType,
   currentMask: boolean
-) => {
+): MixMapType => {
   // 是否能够变换
   let isTransform = true;
   // 是否碰撞
@@ -150,3 +158,5 @@ export const nextMap = createSelector(
   currentMask,
   mixMap
 );
+
+export type NextMapType = ReturnType<typeof nextMap>;

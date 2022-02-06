@@ -489,7 +489,7 @@
             0
         ]
     ],
-    "contorlMask": false,
+    "controlMask": false,
     "currentMap": {
         "autoDown": true,
         "index": 0,
@@ -649,7 +649,7 @@
             }
         ]
     },
-    "contorlscore": 0,
-    "contorllevel": 1,
-    "contorltime": 1642520016076
+    "controlscore": 0,
+    "controllevel": 1,
+    "controltime": 1642520016076
 }

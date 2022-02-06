@@ -1,8 +1,8 @@
-// import { bindActionCreators } from "redux";
-// import actions from "../sage/actions";
-// import { Dispatch } from "./store";
+import { bindActionCreators } from "redux";
+import actions from "../sage/actions";
+import { CDispatch } from "./store";
 
-// const dispatchAction = (dispatch: Dispatch) =>
-//   bindActionCreators(actions, dispatch);
+const dispatchAction = (dispatch: CDispatch) =>
+  bindActionCreators(actions, dispatch);
 
-// export default dispatchAction;
+export default dispatchAction;

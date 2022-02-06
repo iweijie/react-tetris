@@ -41,7 +41,7 @@ export default createReducer(
       isTranslationLeft: true,
       isTranslationRight: true,
     },
-    contorlMask: false,
+    controlMask: false,
     currentMap: {
       autoDown: true,
       index: 0,
@@ -115,9 +115,9 @@ export default createReducer(
         },
       ],
     },
-    contorlscore: 0,
-    contorllevel: 1,
-    contorltime: 1642520016076,
+    controlscore: 0,
+    controllevel: 1,
+    controltime: 1642520016076,
   },
   {
     // [GameActionType.START]: function (dea, action, state) {
@@ -145,7 +145,7 @@ export default createReducer(
 //   }
 // }
 
-// function contorlMask(state = true, action) {
+// function controlMask(state = true, action) {
 //   switch (action.type) {
 //     case mask:
 //       return action.payload;
@@ -154,7 +154,7 @@ export default createReducer(
 //   }
 // }
 
-// function contorlscore(state = 0, action) {
+// function controlscore(state = 0, action) {
 //   switch (action.type) {
 //     case score:
 //       return state + action.payload;
@@ -164,7 +164,7 @@ export default createReducer(
 //       return state;
 //   }
 // }
-// function contorllevel(state = 1, action) {
+// function controllevel(state = 1, action) {
 //   switch (action.type) {
 //     case level:
 //       if (action.payload < 1) {
@@ -179,7 +179,7 @@ export default createReducer(
 //       return state;
 //   }
 // }
-// function contorltime(state = 0, action) {
+// function controltime(state = 0, action) {
 //   switch (action.type) {
 //     case time:
 //       return state + action.payload;
@@ -193,8 +193,8 @@ export default createReducer(
 
 // // export default {
 // //   currentMap,
-// //   contorlMask,
-// //   contorlscore,
-// //   contorllevel,
-// //   contorltime,
+// //   controlMask,
+// //   controlscore,
+// //   controllevel,
+// //   controltime,
 // // };

@@ -1,27 +1,26 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { isEmpty } from "lodash";
-import type { Timer } from "./type";
-import { nextMap } from "./select";
+import type { Timer, mergeType } from "./type";
+import { nextMap, NextMapType } from "./select";
 import Tetris from "./components/Tetris";
 import Control from "./components/Control";
 import "./index.css";
 
-import actions from "./sage/actions";
+import actions, { ActionsType } from "./sage/actions";
 import { MapType } from "./type";
-// currentMap
-// controlNextAction
-// setAction
-// scoreAction
-type AppProps = {
+
+type AppStateProps = {
   map: RootStore["map"];
   currentMap: RootStore["control"]["currentMap"];
-  scoreAction: typeof actions.scoreAction;
-  setAction: typeof actions.setAction;
-  controlNextAction: typeof actions.controlNextAction;
-  controlStartAction: typeof actions.controlStartAction;
-  maskAction: typeof actions.maskAction;
+  controltime: number;
+  controlMask: boolean;
+  controlscore: number;
+  controllevel: number;
+  nextMap: NextMapType;
 };
+
+type AppProps = mergeType<AppStateProps, ActionsType>;
 
 class App extends Component<AppProps> {
   state = {
@@ -185,8 +184,8 @@ class App extends Component<AppProps> {
       let { resetAction } = this.props;
       resetAction();
     }
-    let { contorltime, changeTimeAction } = this.props;
-    if (contorltime === 0) {
+    let { controltime, changeTimeAction } = this.props;
+    if (controltime === 0) {
       changeTimeAction(Date.now());
     } else if (this.delayed) {
       changeTimeAction(Date.now() - this.delayed);
@@ -201,7 +200,7 @@ class App extends Component<AppProps> {
         this.setState({});
       }
       if (flag) {
-        autoDown(...args);
+        autoDown();
         if (callback) {
           requestAnimationFrame(callback);
         }
@@ -217,13 +216,13 @@ class App extends Component<AppProps> {
       this.setState({});
     };
   };
-  decoratorHandle = (fn) => {
-    let { maskAction, contorlMask } = this.props;
+  decoratorHandle = (fn: (...arg: any[]) => any) => {
+    let { maskAction, controlMask } = this.props;
     let arr = [32, 37, 39, 38, 40];
-    return (e) => {
+    return (e: KeyboardEvent) => {
       if (!arr.includes(e.keyCode)) return;
       if (!this.stop) {
-        if (contorlMask) {
+        if (controlMask) {
           maskAction(false);
         }
         this.start();
@@ -234,9 +233,9 @@ class App extends Component<AppProps> {
   };
 
   selfStarting = () => {
-    let { maskAction, contorlMask } = this.props;
+    let { maskAction, controlMask } = this.props;
     if (!this.stop) {
-      if (contorlMask) {
+      if (controlMask) {
         maskAction(false);
       }
       this.start();
@@ -262,7 +261,7 @@ class App extends Component<AppProps> {
     });
   };
   // 平移 flag  1 左； -1 右
-  translation = (flag) => {
+  translation = (flag = 1 | -1) => {
     let { currentMap, controlChangeAction, nextMap } = this.props;
     let { isTranslationLeft, isTranslationRight } = nextMap;
     let { index, site, seat } = currentMap;
@@ -271,12 +270,12 @@ class App extends Component<AppProps> {
     let newLeft;
     if (flag === 1) {
       if (!isTranslationLeft) return;
-      if (left > 0 || -info.l < left) {
+      if (left > 0 || -(info.l || 0) < left) {
         newLeft = left - 1;
       }
     } else {
       if (!isTranslationRight) return;
-      if (left < 10 - info.len || 10 > left + info.len - info.r) {
+      if (left < 10 - info.len || 10 > left + info.len - (info.r || 0)) {
         newLeft = left + 1;
       }
     }
@@ -309,13 +308,13 @@ class App extends Component<AppProps> {
     }
   };
   // 提升等级
-  updateLevel = (next) => {
-    var { levelAction, contorllevel, contorltime } = next;
-    var now = Date.now();
-    if (now - contorltime - contorllevel * 60 * 1000 > 2 * 60 * 1000) {
-      levelAction(++contorllevel);
-    }
-  };
+  // updateLevel = (next) => {
+  //   var { levelAction, controllevel, controltime } = next;
+  //   var now = Date.now();
+  //   if (now - controltime - controllevel * 60 * 1000 > 2 * 60 * 1000) {
+  //     levelAction(++controllevel);
+  //   }
+  // };
   isDeviceTypePc = () => {
     return !/Android|webOS|iPhone|iPod|BlackBerry/i.test(
       window.navigator.userAgent
@@ -327,8 +326,8 @@ class App extends Component<AppProps> {
       this.decoratorHandle(this.keydownHandle)
     );
     document.addEventListener("keyup", this.keyupHandle);
-    var { controlStartAction, contorllevel } = this.props;
-    this.speed = this.currentLevel = this.levelMap[contorllevel];
+    var { controlStartAction, controllevel } = this.props;
+    this.speed = this.currentLevel = this.levelMap[controllevel];
     controlStartAction();
     if (!this.isDeviceTypePc()) {
       this.setState({
@@ -337,9 +336,9 @@ class App extends Component<AppProps> {
       });
     }
   }
-  componentWillReceiveProps(next) {
-    if (next.contorllevel !== this.props.contorllevel) {
-      this.speed = this.currentLevel = this.levelMap[next.contorllevel];
+  componentWillReceiveProps(next: AppProps) {
+    if (next.controllevel !== this.props.controllevel) {
+      this.speed = this.currentLevel = this.levelMap[next.controllevel];
     }
   }
   componentDidUpdate() {
@@ -351,7 +350,7 @@ class App extends Component<AppProps> {
   }
   // 控制键盘事件
   keyFlag = true;
-  keydownHandle = (e) => {
+  keydownHandle = (e: KeyboardEvent) => {
     if (!this.keyFlag) return;
     this.keyFlag = false;
     switch (e.keyCode) {
@@ -371,7 +370,7 @@ class App extends Component<AppProps> {
         return;
     }
   };
-  keyupHandle = (e) => {
+  keyupHandle = (e: KeyboardEvent) => {
     this.keyFlag = true;
     switch (e.keyCode) {
       case 32:
@@ -401,14 +400,14 @@ class App extends Component<AppProps> {
     let {
       currentMap,
       nextMap,
-      contorlMask,
-      contorlscore,
-      contorltime,
-      contorllevel,
+      controlMask,
+      controlscore,
+      controltime,
+      controllevel,
     } = this.props;
     let time;
-    if (contorltime) {
-      time = Date.now() - contorltime;
+    if (controltime) {
+      time = Date.now() - controltime;
     } else {
       time = 0;
     }
@@ -416,9 +415,9 @@ class App extends Component<AppProps> {
       <div className="wrap" style={this.state.style}>
         <Tetris
           time={time}
-          level={contorllevel}
-          score={contorlscore}
-          isMask={contorlMask}
+          level={controllevel}
+          score={controlscore}
+          isMask={controlMask}
           currentMap={currentMap}
           map={nextMap.map}
         />
@@ -440,11 +439,11 @@ const mapStateToProps = (store: RootStore, ownProps: any) => {
   return {
     nextMap: nextMap(store),
     map: store.map,
-    contorlMask: store.control.contorlMask,
+    controlMask: store.control.controlMask,
     currentMap: store.control.currentMap,
-    contorlscore: store.control.contorlscore,
-    contorllevel: store.control.contorllevel,
-    contorltime: store.control.contorltime,
+    controlscore: store.control.controlscore,
+    controllevel: store.control.controllevel,
+    controltime: store.control.controltime,
     ...ownProps,
   };
 };
