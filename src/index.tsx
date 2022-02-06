@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { createStore, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
 import createSagaMiddleware from "redux-saga";
-// import { createLogger } from "redux-logger";
+import { createLogger } from "redux-logger";
 import reducer from "./sage/reducers/index";
 import saga from "./sage/saga";
 
@@ -13,11 +13,13 @@ import "./index.css";
 
 const sagaMiddleware = createSagaMiddleware({});
 
-const middleware = [sagaMiddleware];
-// if (process.env.NODE_ENV !== "production") {
-//   const logger = createLogger();
-//   middleware.push(logger);
-// }
+const middleware = [];
+if (process.env.NODE_ENV !== "production") {
+  const logger = createLogger();
+  middleware.push(logger);
+}
+
+middleware.push(sagaMiddleware);
 
 const store = createStore(reducer, applyMiddleware(...middleware));
 

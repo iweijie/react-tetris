@@ -11,7 +11,7 @@ import actions, { ActionsType } from "./sage/actions";
 import { MapType } from "./type";
 
 type AppStateProps = {
-  map: RootStore["map"];
+  map: RootStore["map"]["map"];
   currentMap: RootStore["control"]["currentMap"];
   controltime: number;
   controlMask: boolean;
@@ -54,9 +54,11 @@ class App extends Component<AppProps> {
 
   // 碰撞检测函数
   handleCollide = (map: MapType) => {
-    let { currentMap, controlNextAction, setAction } = this.props;
+    const { controlNextAction, setAction, controlChangeAction } = this.props;
     this.speed = this.currentLevel;
-    currentMap.autoDown = false;
+    controlChangeAction({
+      autoDown: false,
+    });
     if (this.isGameOver()) {
       return this.gameOver();
     }
@@ -177,7 +179,7 @@ class App extends Component<AppProps> {
   };
   delayed = 0;
   // 开始
-  start = (...args: any[]) => {
+  start = () => {
     if (this.stop || this.isAnimate) return;
     if (this.diedState) {
       this.diedState = false;
@@ -438,7 +440,7 @@ class App extends Component<AppProps> {
 const mapStateToProps = (store: RootStore, ownProps: any) => {
   return {
     nextMap: nextMap(store),
-    map: store.map,
+    map: store.map.map,
     controlMask: store.control.controlMask,
     currentMap: store.control.currentMap,
     controlscore: store.control.controlscore,

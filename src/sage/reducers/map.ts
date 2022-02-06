@@ -1,5 +1,5 @@
 import { MapType } from "../../type";
-import { setInfo, restart } from "../contants";
+import { setInfo, restart, setOldInfo } from "../contants";
 
 // import { GameActionType } from "../contants";
 import createReducer from "../../utils/createReducer";
@@ -29,11 +29,16 @@ export const creatMap = (): MapType => {
   ];
 };
 
-export default createReducer<MapType>(creatMap(), {
-  [setInfo]: function (draft, action, state) {
-    return action.payload as MapType;
+export default createReducer<{ map: MapType }>(
+  {
+    map: creatMap(),
   },
-  [restart]: function () {
-    return creatMap();
-  },
-});
+  {
+    [setInfo]: function (draft, action, state) {
+      draft.map = action.payload as MapType;
+    },
+    [restart]: function (draft, action, state) {
+      draft.map = creatMap();
+    },
+  }
+);

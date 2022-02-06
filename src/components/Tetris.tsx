@@ -11,7 +11,7 @@ const App = (props: any) => {
       <Wrap />
       <div className="_2iZA">
         <div className="_2lJh">
-          <Diamond />
+          <Diamond map={map} />
           <Mask show={isMask} />
           <Right
             time={time}
