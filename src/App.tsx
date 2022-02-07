@@ -13,8 +13,8 @@ import actions, { ActionsType } from "./sage/actions";
 import { MapType } from "./type";
 
 type AppStateProps = {
-  map: RootStore["map"]["map"];
-  currentMap: RootStore["control"]["currentMap"];
+  map: RootStore["map"];
+  currentMap: RootStore["currentMap"];
   controlTime: number;
   controlMask: boolean;
   controlScore: number;
@@ -26,12 +26,31 @@ type AppProps = mergeType<AppStateProps, ActionsType>;
 
 type AppState = any;
 
+// 检测是否有已完成的
+const hasComplete = (map: MapType): number[] => {
+  let arr = [];
+  for (let i = 0; i < map.length; i++) {
+    if (!map[i].includes(0)) {
+      arr.push(i);
+    }
+  }
+  return arr;
+};
+// 是否GG
+const hasGameOver = (currentMap: AppStateProps["currentMap"]) => {
+  let { index, seat, site } = currentMap;
+  let { info } = site[index];
+  let bottom = seat[1];
+  let { t = 0, b = 0, len } = info;
+  return len - t - b >= bottom;
+};
+
 class App extends Component<AppProps, AppState> {
-  Engine: Engine;
+  engine: Engine;
 
   constructor(props: AppProps) {
     super(props);
-    this.Engine = new Engine();
+    this.engine = new Engine();
     this.state = {
       // 1  PC  0 移动
       isPC: 1,
@@ -64,22 +83,23 @@ class App extends Component<AppProps, AppState> {
 
   // 碰撞检测函数
   handleCollide = (map: MapType) => {
-    const { controlNextAction, setAction, controlChangeAction } = this.props;
+    const { controlNextAction, setAction, controlChangeAction, currentMap } =
+      this.props;
     this.speed = this.currentLevel;
     controlChangeAction({
       autoDown: false,
     });
-    if (this.isGameOver()) {
-      return this.gameOver();
+    if (hasGameOver(currentMap)) {
+      return this.handleGameOver();
     }
-    let componentIndexList = this.isComplete(map);
-    if (!isEmpty(componentIndexList)) {
+    const completeIndexList = hasComplete(map);
+    if (!isEmpty(completeIndexList)) {
       if (typeof this.stop === "function") {
         this.stop();
       }
-      this.completeAnimate(map, componentIndexList).then(() => {
+      this.handleCompleteAnimate(map, completeIndexList).then(() => {
         this.start();
-        this.complete(map, componentIndexList);
+        this.handleCompleted(map, completeIndexList);
       });
       return;
     }
@@ -88,39 +108,21 @@ class App extends Component<AppProps, AppState> {
     controlNextAction();
   };
   // 完结动画
-  gameOver = () => {
+  handleGameOver = () => {
     const { controlStartAction, maskAction } = this.props;
     if (this.diedState) return;
     this.isAnimate = true;
     this.stop && this.stop();
     this.diedState = true;
-    this.gameOverAnimate().then(() => {
+    this.handleGameOverAnimate().then(() => {
       this.isAnimate = false;
       maskAction(true);
       controlStartAction();
     });
   };
-  // 检测是否有已完成的
-  isComplete = (map: MapType): number[] => {
-    let arr = [];
-    for (let i = 0; i < map.length; i++) {
-      if (!map[i].includes(0)) {
-        arr.push(i);
-      }
-    }
-    return arr;
-  };
-  // 是否GG
-  isGameOver = () => {
-    let { currentMap } = this.props;
-    let { index, seat, site } = currentMap;
-    let { info } = site[index];
-    let bottom = seat[1];
-    let { t = 0, b = 0, len } = info;
-    return len - t - b >= bottom;
-  };
+
   // 死亡动画
-  gameOverAnimate = () => {
+  handleGameOverAnimate = () => {
     let { map, setAction } = this.props;
     let len = map.length - 1,
       i = len,
@@ -150,7 +152,7 @@ class App extends Component<AppProps, AppState> {
     });
   };
   // 已完成动画
-  completeAnimate = (map: MapType, arr: number[]) => {
+  handleCompleteAnimate = (map: MapType, arr: number[]) => {
     this.isAnimate = true;
     return new Promise((resolve) => {
       this.glitter(map, arr);
@@ -161,7 +163,7 @@ class App extends Component<AppProps, AppState> {
     });
   };
   // 完成事件
-  complete = (map: MapType, arr: number[]) => {
+  handleCompleted = (map: MapType, arr: number[]) => {
     let { setAction, controlNextAction, scoreAction } = this.props;
     arr = arr.sort((a, b) => {
       return b - a;
@@ -188,6 +190,7 @@ class App extends Component<AppProps, AppState> {
         draft[v] = this.redArr;
       });
     });
+
     setAction(newMap);
   };
   delayed = 0;
@@ -260,10 +263,11 @@ class App extends Component<AppProps, AppState> {
   transform = () => {
     var { isTransform } = this.props.nextMap;
     if (!isTransform) return;
-    let { currentMap, controlChangeAction } = this.props;
-    let { index, site, seat } = currentMap;
-    let [left, bottom] = seat;
-    let info = site[index].info;
+    const { currentMap, controlChangeAction } = this.props;
+    const { site, seat } = currentMap;
+    let { index } = currentMap;
+    const [left, bottom] = seat;
+    const { info } = site[index];
     if (left < 0 || left + info.len > 10) return;
     if (bottom > 19) return;
     if (index + 1 >= site.length) {
@@ -403,15 +407,7 @@ class App extends Component<AppProps, AppState> {
     this.props.restartAction();
   };
   render() {
-    let {
-      stop,
-      translation,
-      down,
-      transform,
-      decoratorHandle,
-      selfStarting,
-      gameOver,
-    } = this;
+    let { stop, translation, down, transform, selfStarting, handleGameOver } = this;
     let {
       currentMap,
       nextMap,
@@ -441,7 +437,7 @@ class App extends Component<AppProps, AppState> {
           down={down}
           stop={stop}
           start={selfStarting}
-          restart={gameOver}
+          restart={handleGameOver}
           transform={transform}
           translation={translation}
         />
@@ -450,16 +446,15 @@ class App extends Component<AppProps, AppState> {
   }
 }
 
-const mapStateToProps = (store: RootStore, ownProps: any) => {
+const mapStateToProps = (store: RootStore) => {
   return {
     nextMap: nextMap(store),
-    map: store.map.map,
+    map: store.map,
     controlMask: store.control.controlMask,
-    currentMap: store.control.currentMap,
+    currentMap: store.currentMap,
     controlScore: store.control.controlScore,
     controlLevel: store.control.controlLevel,
     controlTime: store.control.controlTime,
-    ...ownProps,
   };
 };
 

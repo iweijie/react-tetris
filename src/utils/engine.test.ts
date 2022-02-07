@@ -33,4 +33,22 @@ describe("测试 Engine", () => {
       done();
     }, 3000);
   });
+
+  test("测试 count", (done) => {
+    const engine = new Engine();
+    expect.assertions(10);
+    engine.addListener({
+      HZ: 100,
+      count: 10,
+      listener: () => {
+        expect({}).toBeTruthy();
+      },
+    });
+
+    engine.start();
+
+    setTimeout(() => {
+      done();
+    }, 3000);
+  });
 });

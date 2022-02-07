@@ -3,18 +3,22 @@ import Heap from "./Heap";
 let uuid = 0;
 
 type ListenerDataType = {
+  // 调用次数, -1 表示不计算次数
+  count?: number;
   // 刷新频率
   HZ: number;
   // 监听事件
   listener: () => void;
 };
 
-type EngineDataType = ListenerDataType & {
-  // 到期时间(ms)
-  timeout: number;
-  // 唯一ID
-  id: number;
-};
+type EngineDataType = Required<
+  ListenerDataType & {
+    // 到期时间(ms)
+    timeout: number;
+    // 唯一ID
+    id: number;
+  }
+>;
 
 export class Engine {
   private heap: Heap<EngineDataType>;
@@ -31,9 +35,10 @@ export class Engine {
   // TODO 新增 once ，前置触发等
   addListener(d: ListenerDataType) {
     const uid = ++uuid;
-
+    const { count, ...other } = d;
     const d1: EngineDataType = {
-      ...d,
+      ...other,
+      count: typeof count === "number" ? Math.min(-1, count) : -1,
       timeout: this.status === "start" ? Date.now() + d.HZ : 0,
       id: uid,
     };
@@ -105,7 +110,14 @@ export class Engine {
       if (head && head.timeout <= d) {
         this.heap.pop();
         head.timeout += head.HZ;
-        this.heap.insert(head);
+        if (head.count === -1) {
+          this.heap.insert(head);
+        } else {
+          head.count -= 1;
+          if (head.count > 0) {
+            this.heap.insert(head);
+          }
+        }
         head.listener();
       } else {
         break;

@@ -29,21 +29,16 @@ export const creatMap = (): MapType => {
   ];
 };
 
-export default createReducer<{ map: MapType }>(
-  {
-    map: creatMap(),
+export default createReducer<MapType>(creatMap(), {
+  // 貌似不用了可以移除
+  [animation]: function (draft, action) {
+    // const { indexs, f } = action.payload;
+    return action.payload as MapType;
   },
-  {
-    // 貌似不用了可以移除
-    [animation]: function (draft, action, state) {
-      const { indexs, f } = action.payload;
-      draft.map = action.payload as MapType;
-    },
-    [setInfo]: function (draft, action, state) {
-      draft.map = action.payload as MapType;
-    },
-    [restart]: function (draft, action, state) {
-      draft.map = creatMap();
-    },
-  }
-);
+  [setInfo]: function (draft, action) {
+    return action.payload as MapType;
+  },
+  [restart]: function (draft, action) {
+    return creatMap();
+  },
+});

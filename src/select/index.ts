@@ -5,9 +5,9 @@ import { MapType, BlockType } from "../type";
 
 let siteMap: MapType = [];
 
-const currentMap = (state: RootStore) => state.map.map;
+const currentMap = (state: RootStore) => state.map;
 
-const currentGrid = (state: RootStore) => state.control.currentMap;
+const currentGrid = (state: RootStore) => state.currentMap;
 
 const currentMask = (state: RootStore) => state.control.controlMask;
 
@@ -63,7 +63,6 @@ const mixMap = (
   currentMap: ReturnCurrentGridType,
   currentMask: boolean
 ): MixMapType => {
-
   // 是否能够变换
   let isTransform = true;
   // 是否碰撞
