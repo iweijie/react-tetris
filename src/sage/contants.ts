@@ -35,3 +35,4 @@ export const score: string = "control-score";
 export const reset: string = "control-reset";
 export const level: string = "control-level";
 export const time: string = "control-time";
+export const animation: string = "animation";

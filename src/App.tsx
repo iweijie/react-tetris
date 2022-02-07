@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import produce from "immer";
 import { connect } from "react-redux";
 import { isEmpty } from "lodash";
 import type { Timer, mergeType } from "./type";
@@ -36,7 +37,7 @@ class App extends Component<AppProps> {
   diedState = false;
   redArr = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
   completeArr = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-  plainArr = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  plainArr = () => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   // 加分项
   scoreMap = [0, 1, 3, 6, 10];
   // 等级项
@@ -127,7 +128,7 @@ class App extends Component<AppProps> {
           i = 0;
           timerId = setInterval(() => {
             newmap = [...newmap];
-            newmap[i] = this.plainArr;
+            newmap[i] = this.plainArr();
             setAction(newmap);
             i++;
             if (i > len) {
@@ -160,7 +161,7 @@ class App extends Component<AppProps> {
       map.splice(v, 1);
     });
     arr.forEach((v) => {
-      map.unshift(this.plainArr);
+      map.unshift(this.plainArr());
     });
     // 设置 map
     setAction(map);
@@ -172,10 +173,13 @@ class App extends Component<AppProps> {
   // 闪烁
   glitter = (map: MapType, arr: number[]) => {
     let { setAction } = this.props;
-    arr.forEach((v) => {
-      map[v] = this.redArr;
+
+    const newMap = produce(map, (draft) => {
+      arr.forEach((v) => {
+        draft[v] = this.redArr;
+      });
     });
-    setAction(map);
+    setAction(newMap);
   };
   delayed = 0;
   // 开始
