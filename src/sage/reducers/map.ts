@@ -34,6 +34,7 @@ export default createReducer<{ map: MapType }>(
     map: creatMap(),
   },
   {
+    // 貌似不用了可以移除
     [animation]: function (draft, action, state) {
       const { indexs, f } = action.payload;
       draft.map = action.payload as MapType;

@@ -114,4 +114,6 @@ export class Engine {
   }
 }
 
+export type EngineType = typeof Engine;
+
 export default new Engine();

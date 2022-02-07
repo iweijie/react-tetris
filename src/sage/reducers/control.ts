@@ -58,9 +58,9 @@ export default createReducer(
         },
       ],
     },
-    controlscore: 0,
-    controllevel: 1,
-    controltime: 0,
+    controlScore: 0,
+    controlLevel: 1,
+    controlTime: 0,
   },
   {
     [start]: function (deft, action, state) {
@@ -84,12 +84,12 @@ export default createReducer(
       deft.controlMask = action.payload;
     },
     [score]: function (deft, action, state) {
-      deft.controlscore = deft.controlscore + action.payload;
+      deft.controlScore = deft.controlScore + action.payload;
     },
     [reset]: function (deft, action, state) {
-      deft.controlscore = 0;
-      deft.controllevel = 1;
-      deft.controltime = 0;
+      deft.controlScore = 0;
+      deft.controlLevel = 1;
+      deft.controlTime = 0;
     },
     [level]: function (deft, action, state) {
       if (action.payload < 1) {
@@ -97,10 +97,10 @@ export default createReducer(
       } else if (action.payload > 6) {
         action.payload = 6;
       }
-      deft.controllevel = action.payload;
+      deft.controlLevel = action.payload;
     },
     [time]: function (deft, action, state) {
-      deft.controltime = deft.controltime + action.payload;
+      deft.controlTime = deft.controlTime + action.payload;
     },
   }
 );
@@ -108,7 +108,7 @@ export default createReducer(
 // // export default {
 // //   currentMap,
 // //   controlMask,
-// //   controlscore,
-// //   controllevel,
-// //   controltime,
+// //   controlScore,
+// //   controlLevel,
+// //   controlTime,
 // // };

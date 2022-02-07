@@ -6,6 +6,7 @@ import type { Timer, mergeType } from "./type";
 import { nextMap, NextMapType } from "./select";
 import Tetris from "./components/Tetris";
 import Control from "./components/Control";
+import { Engine } from "./utils/engine";
 import "./index.css";
 
 import actions, { ActionsType } from "./sage/actions";
@@ -14,26 +15,34 @@ import { MapType } from "./type";
 type AppStateProps = {
   map: RootStore["map"]["map"];
   currentMap: RootStore["control"]["currentMap"];
-  controltime: number;
+  controlTime: number;
   controlMask: boolean;
-  controlscore: number;
-  controllevel: number;
+  controlScore: number;
+  controlLevel: number;
   nextMap: NextMapType;
 };
 
 type AppProps = mergeType<AppStateProps, ActionsType>;
 
-class App extends Component<AppProps> {
-  state = {
-    // 1  PC  0 移动
-    isPC: 1,
-    style: {
-      paddingTop: "101px",
-      paddingBottom: "59px",
-      marginTop: "-569px",
-      transform: "scale(0.8)",
-    },
-  };
+type AppState = any;
+
+class App extends Component<AppProps, AppState> {
+  Engine: Engine;
+
+  constructor(props: AppProps) {
+    super(props);
+    this.Engine = new Engine();
+    this.state = {
+      // 1  PC  0 移动
+      isPC: 1,
+      style: {
+        paddingTop: "101px",
+        paddingBottom: "59px",
+        marginTop: "-569px",
+        transform: "scale(0.8)",
+      },
+    };
+  }
   diedState = false;
   redArr = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
   completeArr = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
@@ -190,8 +199,8 @@ class App extends Component<AppProps> {
       let { resetAction } = this.props;
       resetAction();
     }
-    let { controltime, changeTimeAction } = this.props;
-    if (controltime === 0) {
+    let { controlTime, changeTimeAction } = this.props;
+    if (controlTime === 0) {
       changeTimeAction(Date.now());
     } else if (this.delayed) {
       changeTimeAction(Date.now() - this.delayed);
@@ -315,10 +324,10 @@ class App extends Component<AppProps> {
   };
   // 提升等级
   // updateLevel = (next) => {
-  //   var { levelAction, controllevel, controltime } = next;
+  //   var { levelAction, controlLevel, controlTime } = next;
   //   var now = Date.now();
-  //   if (now - controltime - controllevel * 60 * 1000 > 2 * 60 * 1000) {
-  //     levelAction(++controllevel);
+  //   if (now - controlTime - controlLevel * 60 * 1000 > 2 * 60 * 1000) {
+  //     levelAction(++controlLevel);
   //   }
   // };
   isDeviceTypePc = () => {
@@ -332,8 +341,8 @@ class App extends Component<AppProps> {
       this.decoratorHandle(this.keydownHandle)
     );
     document.addEventListener("keyup", this.keyupHandle);
-    var { controlStartAction, controllevel } = this.props;
-    this.speed = this.currentLevel = this.levelMap[controllevel];
+    var { controlStartAction, controlLevel } = this.props;
+    this.speed = this.currentLevel = this.levelMap[controlLevel];
     controlStartAction();
     if (!this.isDeviceTypePc()) {
       this.setState({
@@ -343,8 +352,8 @@ class App extends Component<AppProps> {
     }
   }
   componentWillReceiveProps(next: AppProps) {
-    if (next.controllevel !== this.props.controllevel) {
-      this.speed = this.currentLevel = this.levelMap[next.controllevel];
+    if (next.controlLevel !== this.props.controlLevel) {
+      this.speed = this.currentLevel = this.levelMap[next.controlLevel];
     }
   }
   componentDidUpdate() {
@@ -407,13 +416,13 @@ class App extends Component<AppProps> {
       currentMap,
       nextMap,
       controlMask,
-      controlscore,
-      controltime,
-      controllevel,
+      controlScore,
+      controlTime,
+      controlLevel,
     } = this.props;
     let time;
-    if (controltime) {
-      time = Date.now() - controltime;
+    if (controlTime) {
+      time = Date.now() - controlTime;
     } else {
       time = 0;
     }
@@ -421,8 +430,8 @@ class App extends Component<AppProps> {
       <div className="wrap" style={this.state.style}>
         <Tetris
           time={time}
-          level={controllevel}
-          score={controlscore}
+          level={controlLevel}
+          score={controlScore}
           isMask={controlMask}
           currentMap={currentMap}
           map={nextMap.map}
@@ -447,9 +456,9 @@ const mapStateToProps = (store: RootStore, ownProps: any) => {
     map: store.map.map,
     controlMask: store.control.controlMask,
     currentMap: store.control.currentMap,
-    controlscore: store.control.controlscore,
-    controllevel: store.control.controllevel,
-    controltime: store.control.controltime,
+    controlScore: store.control.controlScore,
+    controlLevel: store.control.controlLevel,
+    controlTime: store.control.controlTime,
     ...ownProps,
   };
 };

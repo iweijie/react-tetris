@@ -12,19 +12,19 @@ type ControlPropsType = {
   transform: () => void;
 };
 
-type ControlStateType = {
+type ControlDataType = {
   timerLeft: Timer | null;
   timerRight: Timer | null;
   timerDown: Timer | null;
   uuid: number;
 };
 
-class App extends Component<ControlPropsType, ControlStateType> {
-  state: ControlStateType;
+class App extends Component<ControlPropsType> {
+  data: ControlDataType;
 
   constructor(props: ControlPropsType) {
     super(props);
-    this.state = {
+    this.data = {
       timerLeft: null,
       timerRight: null,
       timerDown: null,
@@ -33,50 +33,50 @@ class App extends Component<ControlPropsType, ControlStateType> {
   }
 
   componentDidMount() {
-    this.state.uuid = get(this.props, "currentMap.uuid");
+    this.data.uuid = get(this.props, "currentMap.uuid");
   }
 
   componentWillReceiveProps(nextProps: ControlPropsType) {
     const m = get(nextProps, "currentMap.uuid");
-    if (this.state.uuid !== m && this.state.timerDown) {
-      this.state.uuid = m;
+    if (this.data.uuid !== m && this.data.timerDown) {
+      this.data.uuid = m;
       this.cancelDown();
     }
   }
 
   translationLeft = () => {
     let { translation } = this.props;
-    if (this.state.timerLeft) {
+    if (this.data.timerLeft) {
       this.cancelTranslationLeft();
     }
-    this.state.timerLeft = setInterval(() => {
+    this.data.timerLeft = setInterval(() => {
       translation(1);
     }, 80);
   };
 
   cancelTranslationLeft = () => {
-    const { timerLeft } = this.state;
+    const { timerLeft } = this.data;
     if (timerLeft) {
       clearInterval(timerLeft);
-      this.state.timerLeft = null;
+      this.data.timerLeft = null;
     }
   };
 
   translationRight = () => {
     let { translation } = this.props;
-    if (this.state.timerRight) {
+    if (this.data.timerRight) {
       this.cancelTranslationRight();
     }
-    this.state.timerRight = setInterval(() => {
+    this.data.timerRight = setInterval(() => {
       translation(-1);
     }, 80);
   };
 
   cancelTranslationRight = () => {
-    const { timerRight } = this.state;
+    const { timerRight } = this.data;
     if (timerRight) {
       clearInterval(timerRight);
-      this.state.timerRight = null;
+      this.data.timerRight = null;
     }
   };
 
@@ -87,18 +87,18 @@ class App extends Component<ControlPropsType, ControlStateType> {
   };
 
   down = () => {
-    if (this.state.timerDown) return;
+    if (this.data.timerDown) return;
     let { down } = this.props;
-    this.state.timerDown = setInterval(() => {
+    this.data.timerDown = setInterval(() => {
       down();
     }, 16);
   };
 
   cancelDown = () => {
-    const { timerDown } = this.state;
+    const { timerDown } = this.data;
     if (timerDown) {
       clearInterval(timerDown);
-      this.state.timerDown = null;
+      this.data.timerDown = null;
     }
   };
 
