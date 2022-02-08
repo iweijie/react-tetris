@@ -138,4 +138,8 @@ export class Engine {
 
 export type EngineType = typeof Engine;
 
-export default new Engine();
+const engine = new Engine();
+
+engine.start();
+
+export default engine;

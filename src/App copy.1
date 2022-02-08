@@ -1,14 +1,21 @@
-import React, { Component } from "react";
+import React, { Component, useRef } from "react";
 import produce from "immer";
 import { connect } from "react-redux";
 import { isEmpty } from "lodash";
+import { useSetState } from "ahooks";
 import type { Timer, mergeType } from "./type";
 import { nextMap, NextMapType } from "./select";
+import {
+  scoreMap,
+  levelMap,
+  getRedArr,
+  getCompleteArr,
+  getPlainArr,
+} from "./config";
 import Tetris from "./components/Tetris";
 import Control from "./components/Control";
 import engine from "./utils/engine";
 import "./index.css";
-
 import actions, { ActionsType } from "./sage/actions";
 import { MapType } from "./type";
 
@@ -45,20 +52,40 @@ const hasGameOver = (currentMap: AppStateProps["currentMap"]) => {
   return len - t - b >= bottom;
 };
 
+// // 动画标识
+// isAnimate = false;
+// // 暂停
+// stop: null | (() => void) = null;
+// // 更新时间
+// updateTime = 0;
+// // 控制下落速度
+// speed = 100;
+// currentLevel = 100;
+// time = 0;
+
+const App = (props: AppProps) => {
+  const f = useRef({
+    isAnimate: false,
+    stop: null,
+    speed: 100,
+    currentLevel: levelMap[1],
+  });
+  const [state, setState] = useSetState({
+    // 1  PC  0 移动
+    isPC: 1,
+    style: {
+      paddingTop: "101px",
+      paddingBottom: "59px",
+      marginTop: "-569px",
+      transform: "scale(0.8)",
+    },
+    diedState: false,
+    isAnimate: false,
+    time: 0,
+  });
+};
+
 class App extends Component<AppProps, AppState> {
-  constructor(props: AppProps) {
-    super(props);
-    this.state = {
-      // 1  PC  0 移动
-      isPC: 1,
-      style: {
-        paddingTop: "101px",
-        paddingBottom: "59px",
-        marginTop: "-569px",
-        transform: "scale(0.8)",
-      },
-    };
-  }
   diedState = false;
   redArr = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
   completeArr = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
@@ -206,39 +233,27 @@ class App extends Component<AppProps, AppState> {
       changeTimeAction(Date.now() - this.delayed);
       this.delayed = 0;
     }
-
-    // 下落
-    engine.addListener({
-      HZ: 1000,
-      // 监听事件
-      listener: () => {
-        if (this.speed <= 1) return;
-        this.down.apply(this);
-      },
-    });
-    // down
-    engine.addListener({
-      HZ: 15,
-      // 监听事件
-      listener: () => {
-        if (this.speed <= 1) {
-          this.down.apply(this);
+    let flag = true;
+    let { autoDown } = this;
+    let callback: null | (() => void) = () => {
+      this.updateTime++;
+      if (this.updateTime >= 60) {
+        this.updateTime = 0;
+        this.setState({});
+      }
+      if (flag) {
+        autoDown();
+        if (callback) {
+          requestAnimationFrame(callback);
         }
-      },
-    });
-    // down
-    engine.addListener({
-      HZ: 1,
-      // 监听事件
-      listener: () => {
-        if (this.speed <= 1) {
-          this.down.apply(this);
-        }
-      },
-    });
-
+      } else {
+        callback = null;
+      }
+    };
+    requestAnimationFrame(callback);
     this.stop = () => {
       this.delayed = Date.now();
+      flag = false;
       this.stop = null;
       this.setState({});
     };
@@ -314,6 +329,11 @@ class App extends Component<AppProps, AppState> {
     }
   };
 
+  autoDown = () => {
+    this.time++;
+    if (this.time < this.speed) return;
+    this.down();
+  };
   down = () => {
     this.time = 0;
     let { currentMap, controlChangeAction, nextMap } = this.props;
