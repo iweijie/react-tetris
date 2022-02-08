@@ -407,8 +407,9 @@ class App extends Component<AppProps, AppState> {
     this.props.restartAction();
   };
   render() {
-    let { stop, translation, down, transform, selfStarting, handleGameOver } = this;
-    let {
+    const { stop, translation, down, transform, selfStarting, handleGameOver } =
+      this;
+    const {
       currentMap,
       nextMap,
       controlMask,

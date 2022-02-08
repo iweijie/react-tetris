@@ -3,6 +3,8 @@ import Heap from "./Heap";
 let uuid = 0;
 
 type ListenerDataType = {
+  // 是否在开始之前调用一次
+  leading?: boolean;
   // 调用次数, -1 表示不计算次数
   count?: number;
   // 刷新频率
@@ -35,10 +37,11 @@ export class Engine {
   // TODO 新增 once ，前置触发等
   addListener(d: ListenerDataType) {
     const uid = ++uuid;
-    const { count, ...other } = d;
+    const { count, leading, ...other } = d;
     const d1: EngineDataType = {
       ...other,
-      count: typeof count === "number" ? Math.min(-1, count) : -1,
+      leading: typeof leading === "undefined" ? false : !!leading,
+      count: typeof count === "number" ? Math.max(-1, count) : -1,
       timeout: this.status === "start" ? Date.now() + d.HZ : 0,
       id: uid,
     };
@@ -57,7 +60,7 @@ export class Engine {
   start() {
     if (this.status === "start") return;
     this.status = "start";
-    this.setTimeout();
+    this._initByCall();
 
     if (typeof requestAnimationFrame === "function") {
       this._f = true;
@@ -86,19 +89,26 @@ export class Engine {
     }
   }
 
-  private setTimeout() {
+  private _initByCall() {
     const size = this.heap.size();
     const list = new Array(size);
     const d = Date.now();
     for (let i = 0; i < size; i++) {
       const d1 = this.heap.pop();
-      if (d1) {
+      if (d1 && d1.id) {
         d1.timeout = d + d1.HZ;
         list.push(d1);
       }
     }
 
     list.forEach((d) => {
+      if (d.leading) {
+        d.listener();
+        if (d.count !== -1) {
+          d.count -= 1;
+        }
+      }
+
       this.heap.insert(d);
     });
   }
