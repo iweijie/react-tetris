@@ -51,6 +51,15 @@ class Heap<T> {
     return false;
   }
 
+  // 查找元素
+  find(fn: (d: T) => boolean): false | T {
+    if (typeof fn === "function") {
+      const index = this.store.findIndex((d) => fn(d));
+      return index !== -1 ? this.store[index] : false;
+    }
+    return false;
+  }
+
   // 返回最顶层元素
   pop(): T | false {
     return this._del(0);

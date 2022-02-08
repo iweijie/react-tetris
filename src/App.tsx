@@ -45,9 +45,27 @@ const hasGameOver = (currentMap: AppStateProps["currentMap"]) => {
   return len - t - b >= bottom;
 };
 
+const keyCodeList = [32, 37, 39, 38, 40];
+
 class App extends Component<AppProps, AppState> {
+  // down：正常下落； quick：快速下落；duang：一落到底
+  downState: "down" | "quick" | "duang";
+  /**
+   * begin: 未开始
+   * pause: 暂停中
+   * running: 运行时
+   * end: 已结束
+   */
+  gameState: "begin" | "pause" | "running" | "end";
+
+  isGameOverAnimate: boolean;
+
   constructor(props: AppProps) {
     super(props);
+    this.downState = "down";
+    this.gameState = "begin";
+    // 动画完结标识
+    this.isGameOverAnimate = false;
     this.state = {
       // 1  PC  0 移动
       isPC: 1,
@@ -67,12 +85,8 @@ class App extends Component<AppProps, AppState> {
   scoreMap = [0, 1, 3, 6, 10];
   // 等级项
   levelMap = [0, 100, 80, 60, 45, 30, 20];
-  // 动画标识
-  isAnimate = false;
   // 暂停
   stop: null | (() => void) = null;
-  // 更新时间
-  updateTime = 0;
   // 控制下落速度
   speed = 100;
   currentLevel = 100;
@@ -82,7 +96,7 @@ class App extends Component<AppProps, AppState> {
   handleCollide = (map: MapType) => {
     const { controlNextAction, setAction, controlChangeAction, currentMap } =
       this.props;
-    this.speed = this.currentLevel;
+    this.downState = "down";
     controlChangeAction({
       autoDown: false,
     });
@@ -104,15 +118,15 @@ class App extends Component<AppProps, AppState> {
     setAction(map);
     controlNextAction();
   };
-  // 完结动画
+  // 完结
   handleGameOver = () => {
     const { controlStartAction, maskAction } = this.props;
-    if (this.diedState) return;
-    this.isAnimate = true;
+    if (this.gameState === "end") return;
+    this.gameState = "end";
+    this.isGameOverAnimate = true;
     this.stop && this.stop();
-    this.diedState = true;
     this.handleGameOverAnimate().then(() => {
-      this.isAnimate = false;
+      this.isGameOverAnimate = false;
       maskAction(true);
       controlStartAction();
     });
@@ -150,11 +164,11 @@ class App extends Component<AppProps, AppState> {
   };
   // 已完成动画
   handleCompleteAnimate = (map: MapType, arr: number[]) => {
-    this.isAnimate = true;
+    this.isGameOverAnimate = true;
     return new Promise((resolve) => {
       this.glitter(map, arr);
       setTimeout(() => {
-        this.isAnimate = false;
+        this.isGameOverAnimate = false;
         resolve(void 0);
       }, 900);
     });
@@ -193,66 +207,58 @@ class App extends Component<AppProps, AppState> {
   delayed = 0;
   // 开始
   start = () => {
-    if (this.stop || this.isAnimate) return;
-    if (this.diedState) {
-      this.diedState = false;
-      let { resetAction } = this.props;
-      resetAction();
-    }
-    let { controlTime, changeTimeAction } = this.props;
-    if (controlTime === 0) {
-      changeTimeAction(Date.now());
-    } else if (this.delayed) {
-      changeTimeAction(Date.now() - this.delayed);
-      this.delayed = 0;
-    }
+    // TODO 更新时间
+    const { changeTimeAction } = this.props;
+
+    changeTimeAction(Date.now());
 
     // 下落
-    engine.addListener({
+    const remove = engine.addListener({
       HZ: 1000,
       // 监听事件
       listener: () => {
-        if (this.speed <= 1) return;
+        if (this.downState !== "down") return;
         this.down.apply(this);
       },
     });
-    // down
-    engine.addListener({
+
+    // 快速下落
+    const remove2 = engine.addListener({
       HZ: 15,
       // 监听事件
       listener: () => {
-        if (this.speed <= 1) {
-          this.down.apply(this);
-        }
+        if (this.downState !== "quick") return;
+        this.down.apply(this);
       },
     });
-    // down
-    engine.addListener({
+
+    // 一落到底
+    const remove3 = engine.addListener({
       HZ: 1,
       // 监听事件
       listener: () => {
-        if (this.speed <= 1) {
-          this.down.apply(this);
-        }
+        if (this.downState !== "duang") return;
+        this.down.apply(this);
       },
     });
 
     this.stop = () => {
-      this.delayed = Date.now();
       this.stop = null;
+      remove();
+      remove2();
+      remove3();
       this.setState({});
     };
   };
   decoratorHandle = (fn: (...arg: any[]) => any) => {
-    let { maskAction, controlMask } = this.props;
-    let arr = [32, 37, 39, 38, 40];
+    const { maskAction, controlMask } = this.props;
     return (e: KeyboardEvent) => {
-      if (!arr.includes(e.keyCode)) return;
+      if (!keyCodeList.includes(e.keyCode)) return;
       if (!this.stop) {
         if (controlMask) {
           maskAction(false);
         }
-        this.start();
+        this.selfStarting();
       } else {
         fn(e);
       }
@@ -260,12 +266,19 @@ class App extends Component<AppProps, AppState> {
   };
 
   selfStarting = () => {
-    let { maskAction, controlMask } = this.props;
-    if (!this.stop) {
+    const { maskAction, controlMask } = this.props;
+    if (this.isGameOverAnimate) return;
+    if (this.gameState === "begin" || this.gameState === "end") {
       if (controlMask) {
         maskAction(false);
       }
       this.start();
+      this.gameState = "running";
+    }
+
+    if (this.gameState === "pause") {
+      let { resetAction } = this.props;
+      resetAction();
     }
   };
   // 变换
@@ -315,7 +328,6 @@ class App extends Component<AppProps, AppState> {
   };
 
   down = () => {
-    this.time = 0;
     let { currentMap, controlChangeAction, nextMap } = this.props;
     let { index, site, seat, autoDown } = currentMap;
     if (!autoDown) return;
@@ -349,8 +361,7 @@ class App extends Component<AppProps, AppState> {
       this.decoratorHandle(this.keydownHandle)
     );
     document.addEventListener("keyup", this.keyupHandle);
-    var { controlStartAction, controlLevel } = this.props;
-    this.speed = this.currentLevel = this.levelMap[controlLevel];
+    var { controlStartAction } = this.props;
     controlStartAction();
     if (!this.isDeviceTypePc()) {
       this.setState({
@@ -359,13 +370,12 @@ class App extends Component<AppProps, AppState> {
       });
     }
   }
-  componentWillReceiveProps(next: AppProps) {
-    if (next.controlLevel !== this.props.controlLevel) {
-      this.speed = this.currentLevel = this.levelMap[next.controlLevel];
-    }
-  }
+  // componentWillReceiveProps(next: AppProps) {
+  //   if (next.controlLevel !== this.props.controlLevel) {
+  //     this.speed = this.currentLevel = this.levelMap[next.controlLevel];
+  //   }
+  // }
   componentDidUpdate() {
-    this.updateTime = 0;
     var { collide, map } = this.props.nextMap;
     if (collide) {
       this.handleCollide(map);
@@ -378,7 +388,7 @@ class App extends Component<AppProps, AppState> {
     this.keyFlag = false;
     switch (e.keyCode) {
       case 32:
-        this.speed = 1;
+        this.downState = "duang";
         return;
       case 37:
         return this.translation(1);
@@ -387,7 +397,8 @@ class App extends Component<AppProps, AppState> {
       case 38:
         return this.transform();
       case 40:
-        this.speed = 1;
+        this.downState = "quick";
+
         return;
       default:
         return;
@@ -397,10 +408,8 @@ class App extends Component<AppProps, AppState> {
     this.keyFlag = true;
     switch (e.keyCode) {
       case 32:
-        this.speed = this.currentLevel;
-        return;
       case 40:
-        this.speed = this.currentLevel;
+        this.downState = "down";
         return;
       default:
         return;

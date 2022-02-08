@@ -11,6 +11,7 @@ type ListenerDataType = {
   HZ: number;
   // 监听事件
   listener: () => void;
+  id?: number | string;
 };
 
 type EngineDataType = Required<
@@ -18,7 +19,7 @@ type EngineDataType = Required<
     // 到期时间(ms)
     timeout: number;
     // 唯一ID
-    id: number;
+    id: number | string;
   }
 >;
 
@@ -34,7 +35,6 @@ export class Engine {
     this.status = "stop";
   }
 
-  // TODO 新增 once ，前置触发等
   addListener(d: ListenerDataType) {
     const uid = ++uuid;
     const { count, leading, ...other } = d;
@@ -43,12 +43,18 @@ export class Engine {
       leading: typeof leading === "undefined" ? false : !!leading,
       count: typeof count === "number" ? Math.max(-1, count) : -1,
       timeout: this.status === "start" ? Date.now() + d.HZ : 0,
-      id: uid,
+      id: other.id ? other.id : `engine_${uid}`,
     };
 
     this.heap.insert(d1);
 
     return this._removeListener.bind(this, uid);
+  }
+
+  // 只触发一次
+  addListenerOnce(d: ListenerDataType) {
+    d.count = 1;
+    this.addListener(d);
   }
 
   private _removeListener(uid: number) {
