@@ -30,11 +30,6 @@ export const creatMap = (): MapType => {
 };
 
 export default createReducer<MapType>(creatMap(), {
-  // 貌似不用了可以移除
-  [animation]: function (draft, action) {
-    // const { indexs, f } = action.payload;
-    return action.payload as MapType;
-  },
   [setInfo]: function (draft, action) {
     return action.payload as MapType;
   },

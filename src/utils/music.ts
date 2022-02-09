@@ -1,18 +1,19 @@
-import store from "../store";
+// import store from "../sage/store";
 
 // 使用 Web Audio API
-const AudioContext =
-  window.AudioContext ||
-  window.webkitAudioContext ||
-  window.mozAudioContext ||
-  window.oAudioContext ||
-  window.msAudioContext;
+const AudioContext = window.AudioContext;
+// ||
+// window.webkitAudioContext ||
+// window.mozAudioContext ||
+// window.oAudioContext ||
+// window.msAudioContext;
 
-const hasWebAudioAPI = {
+export const hasWebAudioAPI = {
+  // eslint-disable-next-line no-restricted-globals
   data: !!AudioContext && location.protocol.indexOf("http") !== -1,
 };
 
-const music = {};
+const music: any = {};
 
 (() => {
   if (!hasWebAudioAPI.data) {
@@ -37,6 +38,8 @@ const music = {};
           return source;
         };
 
+        music.loaded = true;
+
         music.killStart = () => {
           // 游戏开始的音乐只播放一次
           music.start = () => {};
@@ -45,49 +48,34 @@ const music = {};
         music.start = () => {
           // 游戏开始
           music.killStart();
-          if (!store.getState().get("music")) {
-            return;
-          }
+          // if (!store.getState().get("music")) {
+          //   return;
+          // }
           getSource().start(0, 3.7202, 3.6224);
         };
 
         music.clear = () => {
           // 消除方块
-          if (!store.getState().get("music")) {
-            return;
-          }
           getSource().start(0, 0, 0.7675);
         };
 
         music.fall = () => {
           // 立即下落
-          if (!store.getState().get("music")) {
-            return;
-          }
           getSource().start(0, 1.2558, 0.3546);
         };
 
         music.gameover = () => {
           // 游戏结束
-          if (!store.getState().get("music")) {
-            return;
-          }
           getSource().start(0, 8.1276, 1.1437);
         };
 
         music.rotate = () => {
           // 旋转
-          if (!store.getState().get("music")) {
-            return;
-          }
           getSource().start(0, 2.2471, 0.0807);
         };
 
         music.move = () => {
           // 移动
-          if (!store.getState().get("music")) {
-            return;
-          }
           getSource().start(0, 2.9088, 0.1437);
         };
       },
@@ -103,7 +91,4 @@ const music = {};
   req.send();
 })();
 
-export default {
-  hasWebAudioAPI,
-  music,
-};
+export default music;

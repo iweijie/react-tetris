@@ -1,8 +1,17 @@
-export enum GameActionType {
+export enum GameStateActionEnum {
   // 开始
-  START = "start",
+  START = "begin",
+  // 暂停
+  PAUSE = "pause",
   // 重新开始
   RESTART = "restart",
+  // 运行
+  RUNNING = "running",
+  // 结束
+  END = "end",
+}
+
+export enum AudioActionEnum {
   // 关闭声音
   CLOSE_AUDIO = "close-audio",
   // 开启声音

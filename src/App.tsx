@@ -7,6 +7,13 @@ import { nextMap, NextMapType } from "./select";
 import Tetris from "./components/Tetris";
 import Control from "./components/Control";
 import engine from "./utils/engine";
+// import {
+//   scoreMap,
+//   levelMap,
+//   getRedArr,
+//   getCompleteArr,
+//   getPlainArr,
+// } from "./config";
 import "./index.css";
 
 import actions, { ActionsType } from "./sage/actions";
@@ -204,6 +211,7 @@ class App extends Component<AppProps, AppState> {
 
     setAction(newMap);
   };
+
   delayed = 0;
   // 开始
   start = () => {
@@ -250,6 +258,7 @@ class App extends Component<AppProps, AppState> {
       this.setState({});
     };
   };
+
   decoratorHandle = (fn: (...arg: any[]) => any) => {
     const { maskAction, controlMask } = this.props;
     return (e: KeyboardEvent) => {
@@ -281,6 +290,7 @@ class App extends Component<AppProps, AppState> {
       resetAction();
     }
   };
+
   // 变换
   transform = () => {
     var { isTransform } = this.props.nextMap;
@@ -301,6 +311,7 @@ class App extends Component<AppProps, AppState> {
       index,
     });
   };
+
   // 平移 flag  1 左； -1 右
   translation = (flag = 1 | -1) => {
     let { currentMap, controlChangeAction, nextMap } = this.props;
@@ -350,11 +361,13 @@ class App extends Component<AppProps, AppState> {
   //     levelAction(++controlLevel);
   //   }
   // };
+
   isDeviceTypePc = () => {
     return !/Android|webOS|iPhone|iPod|BlackBerry/i.test(
       window.navigator.userAgent
     );
   };
+
   componentDidMount() {
     document.addEventListener(
       "keydown",
@@ -363,24 +376,27 @@ class App extends Component<AppProps, AppState> {
     document.addEventListener("keyup", this.keyupHandle);
     var { controlStartAction } = this.props;
     controlStartAction();
-    if (!this.isDeviceTypePc()) {
-      this.setState({
-        isPC: 0,
-        style: { ...this.state.style, transform: "scale(1)" },
-      });
-    }
+    // if (!this.isDeviceTypePc()) {
+    //   this.setState({
+    //     isPC: 0,
+    //     style: { ...this.state.style, transform: "scale(1)" },
+    //   });
+    // }
   }
+
   // componentWillReceiveProps(next: AppProps) {
   //   if (next.controlLevel !== this.props.controlLevel) {
   //     this.speed = this.currentLevel = this.levelMap[next.controlLevel];
   //   }
   // }
+
   componentDidUpdate() {
     var { collide, map } = this.props.nextMap;
     if (collide) {
       this.handleCollide(map);
     }
   }
+
   // 控制键盘事件
   keyFlag = true;
   keydownHandle = (e: KeyboardEvent) => {
@@ -419,6 +435,7 @@ class App extends Component<AppProps, AppState> {
   reStart = () => {
     this.props.restartAction();
   };
+
   render() {
     const { stop, translation, down, transform, selfStarting, handleGameOver } =
       this;
