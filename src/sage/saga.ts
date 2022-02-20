@@ -1,7 +1,8 @@
-// TODO 暂时用不到saga
 import { takeLatest } from "redux-saga/effects";
-import { GameStateActionEnum } from "./contants";
+import { GameStatActionEnum } from "./contants";
 import music from "../utils/music";
+
+console.log("music", music);
 
 const handleStart = function () {
   music.start();
@@ -12,11 +13,11 @@ const handlePause = function* () {};
 const handleReStart = function* () {};
 
 const rootSaga = function* () {
-  yield takeLatest(GameStateActionEnum.START, handleStart);
-  yield takeLatest(GameStateActionEnum.RUNNING, handleRunning);
-  yield takeLatest(GameStateActionEnum.END, handleEnd);
-  yield takeLatest(GameStateActionEnum.PAUSE, handlePause);
-  yield takeLatest(GameStateActionEnum.RESTART, handleReStart);
+  yield takeLatest(GameStatActionEnum.START, handleStart);
+  yield takeLatest(GameStatActionEnum.RUNNING, handleRunning);
+  yield takeLatest(GameStatActionEnum.END, handleEnd);
+  yield takeLatest(GameStatActionEnum.PAUSE, handlePause);
+  yield takeLatest(GameStatActionEnum.RESTART, handleReStart);
 };
 
 export default rootSaga;

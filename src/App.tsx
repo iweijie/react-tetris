@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { isEmpty } from "lodash";
 import type { Timer, mergeType } from "./type";
 import { nextMap, NextMapType } from "./select";
+import { GameStatActionEnum } from "./sage/contants";
 import Tetris from "./components/Tetris";
 import Control from "./components/Control";
 import engine from "./utils/engine";
@@ -63,14 +64,14 @@ class App extends Component<AppProps, AppState> {
    * running: 运行时
    * end: 已结束
    */
-  gameState: "begin" | "pause" | "running" | "end";
+  gameState: Omit<GameStatActionEnum, GameStatActionEnum.RESTART>;
 
   isGameOverAnimate: boolean;
 
   constructor(props: AppProps) {
     super(props);
     this.downState = "down";
-    this.gameState = "begin";
+    this.gameState = GameStatActionEnum.START;
     // 动画完结标识
     this.isGameOverAnimate = false;
     this.state = {
@@ -277,7 +278,10 @@ class App extends Component<AppProps, AppState> {
   selfStarting = () => {
     const { maskAction, controlMask } = this.props;
     if (this.isGameOverAnimate) return;
-    if (this.gameState === "begin" || this.gameState === "end") {
+    if (
+      this.gameState === GameStatActionEnum.START ||
+      this.gameState === "end"
+    ) {
       if (controlMask) {
         maskAction(false);
       }
@@ -376,12 +380,6 @@ class App extends Component<AppProps, AppState> {
     document.addEventListener("keyup", this.keyupHandle);
     var { controlStartAction } = this.props;
     controlStartAction();
-    // if (!this.isDeviceTypePc()) {
-    //   this.setState({
-    //     isPC: 0,
-    //     style: { ...this.state.style, transform: "scale(1)" },
-    //   });
-    // }
   }
 
   // componentWillReceiveProps(next: AppProps) {

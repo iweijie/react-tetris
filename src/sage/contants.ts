@@ -1,4 +1,4 @@
-export enum GameStateActionEnum {
+export enum GameStatActionEnum {
   // 开始
   START = "begin",
   // 暂停
@@ -31,12 +31,21 @@ export enum ControlActionType {
   RIGHT = "right-shift",
 }
 
+export enum DownActionType {
+  // 向下一格
+  DOWN = "down",
+  // 旋转
+}
+
 export enum SagaActionType {}
 
 export const setInfo: string = "setInfo";
 export const setOldInfo: string = "setOldInfo";
-export const restart: string = "restart";
-export const start: string = "control-start";
+export const start = GameStatActionEnum.START;
+export const pause = GameStatActionEnum.PAUSE;
+export const restart = GameStatActionEnum.RESTART;
+export const running = GameStatActionEnum.RUNNING;
+export const end = GameStatActionEnum.END;
 export const change: string = "control-change";
 export const next: string = "control-next";
 export const mask: string = "control-mask";

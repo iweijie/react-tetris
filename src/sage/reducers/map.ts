@@ -33,7 +33,7 @@ export default createReducer<MapType>(creatMap(), {
   [setInfo]: function (draft, action) {
     return action.payload as MapType;
   },
-  [restart]: function (draft, action) {
+  [restart]: function () {
     return creatMap();
   },
 });
