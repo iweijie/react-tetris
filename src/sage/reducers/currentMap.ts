@@ -9,6 +9,7 @@ import {
   time,
 } from "../contants";
 
+import getNextBlockMapInfo from "../../utils/getNextBlock";
 import { MapType, BlockType } from "../../type";
 import createReducer from "../../utils/createReducer";
 
@@ -31,8 +32,11 @@ export default createReducer<CurrentMapType>(
     site: [],
   },
   {
-    [start]: function (deft, action) {
-      return action.payload;
+    [start]: function () {
+      const data = getNextBlockMapInfo();
+      data.next = getNextBlockMapInfo();
+
+      return data;
     },
     [next]: function (deft, action) {
       let data: CurrentMapType;

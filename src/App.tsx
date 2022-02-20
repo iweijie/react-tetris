@@ -20,6 +20,7 @@ import "./index.css";
 import actions, { ActionsType } from "./sage/actions";
 import { MapType } from "./type";
 
+// gameStat: Omit<GameStatActionEnum, GameStatActionEnum.RESTART>;
 type AppStateProps = {
   map: RootStore["map"];
   currentMap: RootStore["currentMap"];
@@ -28,6 +29,7 @@ type AppStateProps = {
   controlScore: number;
   controlLevel: number;
   nextMap: NextMapType;
+  gameStat: Omit<GameStatActionEnum, GameStatActionEnum.RESTART>;
 };
 
 type AppProps = mergeType<AppStateProps, ActionsType>;
@@ -64,14 +66,12 @@ class App extends Component<AppProps, AppState> {
    * running: 运行时
    * end: 已结束
    */
-  gameState: Omit<GameStatActionEnum, GameStatActionEnum.RESTART>;
 
   isGameOverAnimate: boolean;
 
   constructor(props: AppProps) {
     super(props);
     this.downState = "down";
-    this.gameState = GameStatActionEnum.START;
     // 动画完结标识
     this.isGameOverAnimate = false;
     this.state = {
@@ -117,7 +117,7 @@ class App extends Component<AppProps, AppState> {
         this.stop();
       }
       this.handleCompleteAnimate(map, completeIndexList).then(() => {
-        this.start();
+        this.selfStarting();
         this.handleCompleted(map, completeIndexList);
       });
       return;
@@ -128,15 +128,14 @@ class App extends Component<AppProps, AppState> {
   };
   // 完结
   handleGameOver = () => {
-    const { controlStartAction, maskAction } = this.props;
-    if (this.gameState === "end") return;
-    this.gameState = "end";
+    const { maskAction, gameStat, controlEndAction } = this.props;
+    if (gameStat === GameStatActionEnum.END) return;
+    controlEndAction();
     this.isGameOverAnimate = true;
     this.stop && this.stop();
     this.handleGameOverAnimate().then(() => {
       this.isGameOverAnimate = false;
       maskAction(true);
-      controlStartAction();
     });
   };
 
@@ -214,13 +213,8 @@ class App extends Component<AppProps, AppState> {
   };
 
   delayed = 0;
-  // 开始
-  start = () => {
-    // TODO 更新时间
-    const { changeTimeAction } = this.props;
 
-    changeTimeAction(Date.now());
-
+  addDrop = () => {
     // 下落
     const remove = engine.addListener({
       HZ: 1000,
@@ -276,22 +270,31 @@ class App extends Component<AppProps, AppState> {
   };
 
   selfStarting = () => {
-    const { maskAction, controlMask } = this.props;
+    const {
+      controlStartAction,
+      controlPauseAction,
+      controlRunningAction,
+      gameStat,
+    } = this.props;
+
     if (this.isGameOverAnimate) return;
     if (
-      this.gameState === GameStatActionEnum.START ||
-      this.gameState === "end"
+      gameStat === GameStatActionEnum.START ||
+      gameStat === GameStatActionEnum.END
     ) {
-      if (controlMask) {
-        maskAction(false);
-      }
-      this.start();
-      this.gameState = "running";
+      controlStartAction();
+      this.addDrop();
+      controlRunningAction();
     }
 
-    if (this.gameState === "pause") {
-      let { resetAction } = this.props;
-      resetAction();
+    if (gameStat === GameStatActionEnum.RUNNING) {
+      if (this.stop) this.stop();
+      controlPauseAction();
+    }
+
+    if (gameStat === GameStatActionEnum.PAUSE) {
+      this.addDrop();
+      controlRunningAction();
     }
   };
 
@@ -378,8 +381,6 @@ class App extends Component<AppProps, AppState> {
       this.decoratorHandle(this.keydownHandle)
     );
     document.addEventListener("keyup", this.keyupHandle);
-    var { controlStartAction } = this.props;
-    controlStartAction();
   }
 
   // componentWillReceiveProps(next: AppProps) {
@@ -444,6 +445,7 @@ class App extends Component<AppProps, AppState> {
       controlScore,
       controlTime,
       controlLevel,
+      gameStat,
     } = this.props;
     let time;
     if (controlTime) {
@@ -464,8 +466,8 @@ class App extends Component<AppProps, AppState> {
         <Control
           currentMap={currentMap}
           down={down}
-          stop={stop}
-          start={selfStarting}
+          changeGameStat={selfStarting}
+          gameStat={gameStat}
           restart={handleGameOver}
           transform={transform}
           translation={translation}
@@ -484,6 +486,7 @@ const mapStateToProps = (store: RootStore) => {
     controlScore: store.control.controlScore,
     controlLevel: store.control.controlLevel,
     controlTime: store.control.controlTime,
+    gameStat: store.control.gameStat,
   };
 };
 

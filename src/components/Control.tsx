@@ -1,13 +1,15 @@
 import React, { Component } from "react";
 import type { Timer } from "../type";
+import { GameStatActionEnum } from "../sage/contants";
 import get from "lodash/get";
 
 type ControlPropsType = {
   currentMap: any;
+  gameStat: Omit<GameStatActionEnum, GameStatActionEnum.RESTART>;
   translation: (f: number) => void;
   down: () => void;
-  stop: null | (() => void);
-  start: () => void;
+  // changeGameStat: null | (() => void);
+  changeGameStat: () => void;
   restart: () => void;
   transform: () => void;
 };
@@ -81,8 +83,7 @@ class App extends Component<ControlPropsType> {
   };
 
   restart = () => {
-    let { restart, stop } = this.props;
-    if (!stop) return;
+    let { restart } = this.props;
     restart();
   };
 
@@ -102,6 +103,14 @@ class App extends Component<ControlPropsType> {
     }
   };
 
+  btnText = () => {
+    const { gameStat } = this.props;
+    if (gameStat === GameStatActionEnum.START) return "开始(R)";
+    if (gameStat === GameStatActionEnum.PAUSE) return "继续(R)";
+    if (gameStat === GameStatActionEnum.RUNNING) return "暂停(P)";
+    return "开始(R)";
+  };
+
   render() {
     const {
       translationRight,
@@ -110,7 +119,7 @@ class App extends Component<ControlPropsType> {
       cancelTranslationRight,
       restart,
     } = this;
-    let { down, start, stop, transform } = this.props;
+    let { down, changeGameStat, transform, gameStat } = this.props;
 
     return (
       <div className="control" style={{ marginTop: "79px" }}>
@@ -196,12 +205,12 @@ class App extends Component<ControlPropsType> {
           <span className="">音效(S)</span>
         </div>
         <div
-          onClick={stop ? stop : () => start()}
+          onClick={changeGameStat}
           className="_1pg0 RBZg oW6K"
           style={{ top: "0px", left: "16px" }}
         >
           <i className=""></i>
-          <span className="">{stop ? "暂停(P)" : "开始"}</span>
+          <span className="">{this.btnText()}</span>
         </div>
       </div>
     );

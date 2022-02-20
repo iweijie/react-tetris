@@ -36,7 +36,7 @@ export class Engine {
   }
 
   addListener(d: ListenerDataType) {
-    const uid = ++uuid;
+    const uid = `${++uuid}`;
     const { count, leading, ...other } = d;
     const d1: EngineDataType = {
       ...other,
@@ -48,7 +48,7 @@ export class Engine {
 
     this.heap.insert(d1);
 
-    return this._removeListener.bind(this, uid);
+    return this._removeListener.bind(this, d1.id);
   }
 
   // 只触发一次
@@ -57,7 +57,7 @@ export class Engine {
     this.addListener(d);
   }
 
-  private _removeListener(uid: number) {
+  private _removeListener(uid: number | string) {
     return this.heap.delete((d) => {
       return d.id === uid;
     });

@@ -2,8 +2,6 @@ import { takeLatest } from "redux-saga/effects";
 import { GameStatActionEnum } from "./contants";
 import music from "../utils/music";
 
-console.log("music", music);
-
 const handleStart = function () {
   music.start();
 };

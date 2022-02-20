@@ -10,6 +10,7 @@ import {
   reset,
   level,
   time,
+  GameStatActionEnum,
 } from "./contants";
 
 const setAction = (payload: any) => {
@@ -25,14 +26,20 @@ const restartAction = () => {
   };
 };
 
-const controlStartAction = () => {
-  var payload = getNextBlockMapInfo();
-  payload.next = getNextBlockMapInfo();
+const ControlStatAction = (type: GameStatActionEnum) => (payload?: any) => {
+  payload = payload || {};
+
   return {
-    type: start,
+    type,
     payload,
   };
 };
+
+const controlStartAction = ControlStatAction(GameStatActionEnum.START);
+const controlPauseAction = ControlStatAction(GameStatActionEnum.PAUSE);
+const controlRunningAction = ControlStatAction(GameStatActionEnum.RUNNING);
+const controlEndAction = ControlStatAction(GameStatActionEnum.END);
+const controlRestartAction = ControlStatAction(GameStatActionEnum.RESTART);
 
 //   Action
 const controlChangeAction = (payload: any) => {
@@ -86,6 +93,10 @@ const changeTimeAction = (payload: number) => {
 
 const actions = {
   controlStartAction,
+  controlPauseAction,
+  controlRunningAction,
+  controlEndAction,
+  controlRestartAction,
   controlChangeAction,
   controlNextAction,
   maskAction,
@@ -98,4 +109,4 @@ const actions = {
 };
 export type ActionsType = typeof actions;
 
-export default actions; 
+export default actions;
